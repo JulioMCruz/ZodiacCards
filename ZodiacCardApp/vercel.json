@@ -1,0 +1,7 @@
+{
+    "functions": {
+      "pages/api/vercel/**/*.ts": {
+        "maxDuration": 60
+      }
+    }
+  }
