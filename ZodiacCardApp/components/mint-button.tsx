@@ -17,7 +17,8 @@ import Image from "next/image"
 import { parseUnits, formatUnits, decodeEventLog, type Log } from "viem"
 import { zodiacNftAbi } from "@/lib/abis"
 import { type BaseError, ContractFunctionExecutionError } from 'viem'
-import { sdk } from "@farcaster/frame-sdk"
+import { sdk } from "@farcaster/miniapp-sdk"
+import { useFarcaster } from "@/contexts/FarcasterContext"
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "42220")
@@ -69,18 +70,19 @@ function formatCELO(amount: bigint): string {
   return `${formatUnits(amount, 18)} CELO`
 }
 
-export function MintButton({ 
-  imageUrl, 
-  zodiacSign, 
+export function MintButton({
+  imageUrl,
+  zodiacSign,
   zodiacType,
-  fortune, 
-  username, 
-  onSuccess 
+  fortune,
+  username,
+  onSuccess
 }: MintButtonProps) {
   const { address } = useAccount()
   const chainId = useChainId()
   const { switchChain, isPending: isSwitchPending } = useSwitchChain()
   const publicClient = usePublicClient()
+  const { isAuthenticated } = useFarcaster()
   const [error, setError] = useState<string | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tokenId, setTokenId] = useState<string | null>(null)
@@ -247,18 +249,28 @@ export function MintButton({
   const handleShareWarpcast = async () => {
     if (!tokenId) return
 
-    try {
+    if (isAuthenticated) {
+      // In Farcaster app - use SDK with embeds
       const text = `Just minted my Zodiac Card NFT! Check out my fortune ✨:\n\nZodiac: ${zodiacType.toUpperCase()}\nSign: ${zodiacSign}\n${fortune}\n\nView on Blockscout: ${NFT_EXPLORER_URL}/${tokenId}`
 
-      await sdk.actions.composeCast({
-        text,
-        embeds: [imageUrl, "https://zodiaccard.xyz"],
-      })
-    } catch (error) {
-      console.error('Error sharing to Warpcast:', error)
-      // Fallback: open in new window if SDK fails
-      const text = encodeURIComponent(`Just minted my Zodiac Card NFT! Check out my fortune ✨:\n\nZodiac: ${zodiacType.toUpperCase()}\nSign: ${zodiacSign}\n\nView on Blockscout: ${NFT_EXPLORER_URL}/${tokenId}`)
-      window.open(`https://warpcast.com/~/compose?text=${text}`, '_blank')
+      try {
+        await sdk.actions.composeCast({
+          text,
+          embeds: [imageUrl, "https://zodiaccard.xyz"],
+        })
+      } catch (error) {
+        console.error('Error sharing with SDK:', error)
+        // Fallback to web URL with embeds in URL
+        const encodedText = encodeURIComponent(text)
+        const embedsParam = `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+        window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
+      }
+    } else {
+      // In browser - open Warpcast compose URL with embeds
+      const text = `Just minted my Zodiac Card NFT! Check out my fortune ✨:\n\nZodiac: ${zodiacType.toUpperCase()}\nSign: ${zodiacSign}\n${fortune}\n\nView on Blockscout: ${NFT_EXPLORER_URL}/${tokenId}`
+      const encodedText = encodeURIComponent(text)
+      const embedsParam = `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+      window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
     }
   }
 
@@ -269,15 +281,19 @@ export function MintButton({
     }
 
     const url = `${NFT_EXPLORER_URL}/${tokenId}`
-    console.log('Opening NFT URL:', url)
 
-    try {
-      await sdk.actions.openUrl(url)
-      console.log('Successfully opened URL with SDK')
-    } catch (error) {
-      console.error('Error opening URL with SDK:', error)
-      // Fallback: open in new window if SDK fails
-      console.log('Falling back to window.open')
+    if (isAuthenticated) {
+      // In Farcaster app - use SDK to open URL
+      try {
+        await sdk.actions.openUrl(url)
+        console.log('Successfully opened URL with SDK')
+      } catch (error) {
+        console.error('Error opening URL with SDK:', error)
+        // Fallback to window.open
+        window.open(url, '_blank')
+      }
+    } else {
+      // In browser - directly open in new tab
       window.open(url, '_blank')
     }
   }

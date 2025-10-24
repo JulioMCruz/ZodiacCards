@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 interface ZodiacLoadingProps {
   message?: string
   className?: string
+  duration?: number // Duration in seconds for progress bar (default: 30)
 }
 
 // Mystical fortune-telling messages that rotate during loading
@@ -24,9 +25,10 @@ const FORTUNE_MESSAGES = [
   "Revealing hidden truths...",
 ]
 
-export function ZodiacLoading({ message, className }: ZodiacLoadingProps) {
+export function ZodiacLoading({ message, className, duration = 30 }: ZodiacLoadingProps) {
   const [currentMessage, setCurrentMessage] = useState(0)
   const [isMounted, setIsMounted] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   // Generate random star positions only on client side
   const starPositions = useMemo(() =>
@@ -51,6 +53,22 @@ export function ZodiacLoading({ message, className }: ZodiacLoadingProps) {
 
     return () => clearInterval(interval)
   }, [])
+
+  // Animate progress bar
+  useEffect(() => {
+    const startTime = Date.now()
+    const interval = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000
+      const newProgress = Math.min((elapsed / duration) * 100, 100)
+      setProgress(newProgress)
+
+      if (newProgress >= 100) {
+        clearInterval(interval)
+      }
+    }, 50) // Update every 50ms for smooth animation
+
+    return () => clearInterval(interval)
+  }, [duration])
 
   return (
     <div className={cn("relative flex flex-col items-center justify-center", className)}>
@@ -172,6 +190,19 @@ export function ZodiacLoading({ message, className }: ZodiacLoadingProps) {
             />
           ))}
         </div>
+
+        {/* Progress Bar */}
+        <div className="w-full max-w-xs mt-4">
+          <div className="relative h-2 bg-violet-900/30 rounded-full overflow-hidden backdrop-blur-sm">
+            <div
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-violet-500 via-purple-500 to-violet-400 rounded-full transition-all duration-100 ease-linear"
+              style={{ width: `${progress}%` }}
+            >
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* CSS Animations */}
@@ -243,6 +274,15 @@ export function ZodiacLoading({ message, className }: ZodiacLoadingProps) {
 
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
+        }
+
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
         }
       `}</style>
     </div>

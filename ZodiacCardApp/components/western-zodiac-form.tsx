@@ -2,22 +2,31 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sparkles } from "lucide-react"
 import { getWesternZodiacSign } from "@/lib/zodiac-utils"
+import { useFarcaster } from "@/contexts/FarcasterContext"
 
 export function WesternZodiacForm() {
   const router = useRouter()
+  const { isAuthenticated, user } = useFarcaster()
   const [username, setUsername] = useState("")
   const [day, setDay] = useState("")
   const [month, setMonth] = useState("")
   const [year, setYear] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // Auto-populate username from Farcaster context
+  useEffect(() => {
+    if (isAuthenticated && user?.username && !username) {
+      setUsername(user.username)
+    }
+  }, [isAuthenticated, user, username])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,8 +87,14 @@ export function WesternZodiacForm() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="bg-amber-50 border-amber-200 text-gray-800 placeholder:text-amber-400"
+          readOnly={isAuthenticated}
+          disabled={isAuthenticated}
         />
-        <p className="text-xs text-gray-600">Enter your Farcaster username without the @ symbol</p>
+        <p className="text-xs text-gray-600">
+          {isAuthenticated
+            ? "Your Farcaster username (auto-filled)"
+            : "Enter your Farcaster username without the @ symbol"}
+        </p>
       </div>
 
       <div className="grid grid-cols-3 gap-2">

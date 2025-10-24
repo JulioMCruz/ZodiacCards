@@ -1,5 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server"
-import type { FrameRequest } from "@farcaster/frame-sdk"
+
+// Simple type for frame request - no SDK import needed for this basic API
+type FrameRequest = {
+  untrustedData?: {
+    fid?: number
+    url?: string
+    messageHash?: string
+    timestamp?: number
+    network?: number
+    buttonIndex?: number
+    castId?: {
+      fid: number
+      hash: string
+    }
+  }
+  trustedData?: {
+    messageBytes?: string
+  }
+}
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
