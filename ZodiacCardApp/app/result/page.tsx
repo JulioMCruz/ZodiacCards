@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ArrowLeft, Loader2, Share2 } from "lucide-react"
 import { Header } from "@/components/header"
 import { MintButton } from "@/components/mint-button"
+import { ZodiacLoading } from "@/components/zodiac-loading"
 
 export default function ResultPage() {
   
@@ -209,9 +210,8 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
     return (
       <main className="flex min-h-screen flex-col items-center p-4 bg-[#2D1B69] bg-gradient-to-b from-[#2D1B69] to-[#1E1240]">
         <Header />
-        <div className="flex flex-col items-center justify-center h-64 w-full max-w-md">
-          <Loader2 className="h-12 w-12 text-amber-400 animate-spin mb-4" />
-          <p className="text-amber-200 text-lg">Consulting the stars...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] w-full max-w-md mt-8">
+          <ZodiacLoading className="w-full h-96 bg-white/5 backdrop-blur-md border border-amber-300/20 rounded-lg" />
         </div>
       </main>
     )
@@ -285,8 +285,8 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
           )}
 
           {generationStateRef.current.hasStarted && !imageUrl && !error && (
-            <div className="mb-6 p-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
+            <div className="mb-6 w-full aspect-square rounded-lg overflow-hidden">
+              <ZodiacLoading message="Creating your character..." className="w-full h-full bg-amber-50/50 border border-amber-200" />
             </div>
           )}
 
@@ -306,7 +306,11 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
           </Button>
           */}
 
-          <Link href={`/fortune/${zodiacType}`} className="w-full">
+          {/* 
+                    <Link href={`/fortune/${zodiacType}`} className="w-full">
+          */}
+
+          <Link href={`/`} className="w-full">
             <Button variant="outline" className="w-full border-amber-300 text-amber-500">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Try Another
