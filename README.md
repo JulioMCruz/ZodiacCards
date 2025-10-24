@@ -2,15 +2,21 @@
 
 > A Farcaster Mini App that generates personalized Zodiac fortunes and mints them as NFTs on Celo Mainnet.
 
+<div align="center">
+  <img src="ZodiacCardApp/public/Marketing.png" alt="Zodiac Card Banner" width="800"/>
+</div>
+
 ## 🌐 Live Deployment
 
 **Network**: Celo Mainnet (Chain ID: 42220)
 
 **Deployed Contract**: `0x415Df58904f56A159748476610B8830db2548158`
 - [View on Celoscan](https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158)
-- Mint Fee: **1.0 CELO** (native token payment)
+- ✅ **Verified Contract** - Source code publicly available
+- Mint Fee: **5.0 CELO** (native token payment)
 - Royalty: 2.5% (ERC2981)
 - Proxy Type: UUPS Upgradeable
+- Compiler: Solidity v0.8.20 with 200 optimization runs
 
 ## Overview
 
@@ -25,15 +31,23 @@ The integration with Farcaster's social protocol allows users to share their for
 
 ## Features
 
-- 🎴 Mint unique Zodiac Fortune NFTs
-- 🔮 AI-powered fortune predictions
-- ⭐ Zodiac sign compatibility matching
+- 🎴 Mint unique Zodiac Fortune NFTs for **5.0 CELO**
+- 🔮 AI-powered fortune predictions using OpenAI GPT-4
+- 🔐 **Self Protocol Integration** - Privacy-preserving identity verification
+  - Zero-knowledge proof verification for date of birth
+  - Auto-fill birth information securely from Self app
+  - No sensitive data stored on-chain
+- ⭐ Multiple Zodiac Systems:
+  - Chinese Zodiac (12 animals based on birth year)
+  - Western Zodiac (12 signs based on birth date)
+  - Vedic Astrology (Nakshatra system)
+  - Mayan Calendar (Tzolkin day signs)
 - 🌌 Real-time celestial alignment integration
 - 💫 Interactive card viewing experience
 - 🔄 Secondary market trading capabilities
 - 🖼️ Farcaster Frames integration for social sharing
 - 🌐 Native Celo blockchain deployment (carbon-negative)
-- 💰 Pay with native CELO tokens (18 decimals)
+- 💰 Pay with native CELO tokens - **5.0 CELO** per mint
 - 📱 Optimized for Farcaster Mini App experience
 
 ## 🔒 Security
@@ -55,6 +69,9 @@ All API keys and private keys are properly protected:
 - **Blockchain**: Solidity ^0.8.20, Hardhat, Celo Network
 - **Web3**: Viem v2, Wagmi v2
 - **AI/ML**: OpenAI GPT-4
+- **Privacy**: Self Protocol (Zero-Knowledge Proofs)
+  - @selfxyz/core - Backend verification
+  - @selfxyz/qrcode - Frontend SDK
 - **Storage**: IPFS (Pinata), AWS S3
 - **Authentication**: Farcaster Frame SDK, Wallet Connect
 - **Testing**: Hardhat Test, OpenZeppelin Test Helpers
@@ -237,12 +254,17 @@ cp .env.example .env.local
 # Required environment variables:
 # NEXT_PUBLIC_CHAIN_ID=42220 (Celo Mainnet)
 # NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x415Df58904f56A159748476610B8830db2548158
-# NEXT_PUBLIC_CELO_MINT_PRICE=1.0
+# NEXT_PUBLIC_CELO_MINT_PRICE=5.0
 # NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-project-id>
 # NEXT_PUBLIC_RPC_URL_CELO=https://forno.celo.org
 # OPENAI_API_KEY=<your-openai-key>
 # PINATA_API_KEY=<your-pinata-key>
 # AWS_ACCESS_KEY_ID=<your-aws-key>
+#
+# Self Protocol (Optional - for privacy-preserving birth date verification):
+# NEXT_PUBLIC_SELF_APP_NAME=Zodiac Card
+# NEXT_PUBLIC_SELF_SCOPE=zodiac-card-app
+# NEXT_PUBLIC_SITE_URL=<your-site-url>
 ```
 
 4. Run the development server
