@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { MintButton } from "@/components/mint-button"
 import { ShareButton } from "@/components/share-button"
+import { ZodiacLoading } from "@/components/zodiac-loading"
 import { ArrowLeft, Loader2, Download, RefreshCw } from "lucide-react"
 
 export default function FortunePage() {
@@ -147,9 +148,8 @@ export default function FortunePage() {
     return (
       <main className="flex min-h-screen flex-col items-center p-4 bg-gradient-to-b from-violet-900 to-indigo-950">
         <Header />
-        <div className="flex flex-col items-center justify-center h-64 w-full max-w-md">
-          <Loader2 className="h-12 w-12 text-violet-400 animate-spin mb-4" />
-          <p className="text-violet-200 text-lg">Consulting the stars...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] w-full max-w-md mt-8">
+          <ZodiacLoading className="w-full h-96 bg-white/5 backdrop-blur-md border border-violet-300/20 rounded-lg" />
         </div>
       </main>
     )
@@ -186,9 +186,8 @@ export default function FortunePage() {
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center p-4">
             {isImageLoading ? (
-              <div className="w-full aspect-square flex flex-col items-center justify-center bg-violet-900/30 rounded-lg">
-                <Loader2 className="h-12 w-12 text-violet-400 animate-spin mb-4" />
-                <p className="text-violet-200">Creating your character...</p>
+              <div className="w-full aspect-square flex flex-col items-center justify-center bg-violet-900/30 rounded-lg overflow-hidden">
+                <ZodiacLoading message="Creating your character..." className="w-full h-full" />
               </div>
             ) : imageUrl ? (
               <div className="relative w-full aspect-square rounded-lg overflow-hidden">
