@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain, useEnsName } from 'wagmi'
 import { Button } from "@/components/ui/button"
 import { Wallet, LogOut, ChevronDown, SwitchCamera } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { celo, celoAlfajores } from 'wagmi/chains'
+import { mainnet } from 'wagmi/chains'
 
 export function ConnectMenu() {
   const [mounted, setMounted] = useState(false)
@@ -37,6 +38,10 @@ export function ConnectMenu() {
   const { isAuthenticated, user } = useFarcaster()
   const chainId = useChainId()
   const { switchChain, isPending: isSwitchPending } = useSwitchChain()
+  const { data: ensName } = useEnsName({
+    address: address,
+    chainId: mainnet.id
+  })
 
   // Auto-connect in Farcaster environment
   useEffect(() => {
@@ -51,11 +56,27 @@ export function ConnectMenu() {
           }
         } catch (error) {
           console.error('❌ Auto-connect failed:', error)
+          // Clear any stale connections
+          setError(null)
         }
       }
     }
     autoConnect()
   }, [mounted, isAuthenticated, isConnected, connectors, connect])
+
+  // Clear stale WalletConnect sessions on mount
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      // Clear any orphaned WalletConnect sessions
+      try {
+        localStorage.removeItem('wc@2:client:0.3//session')
+        localStorage.removeItem('wc@2:core:0.3//messages')
+        localStorage.removeItem('wc@2:core:0.3//subscription')
+      } catch (e) {
+        // Ignore errors when clearing storage
+      }
+    }
+  }, [mounted, isAuthenticated])
 
   // Check if we're on the wrong network and auto-switch if needed
   useEffect(() => {
@@ -110,6 +131,23 @@ export function ConnectMenu() {
   }
 
   if (isConnected) {
+    // In Farcaster, show simple button without dropdown
+    if (isAuthenticated && !isWrongNetwork) {
+      return (
+        <div className="flex flex-col items-end gap-2">
+          <Button
+            variant="outline"
+            className="bg-violet-600/10 text-violet-600 min-w-[160px]"
+            disabled
+          >
+            <Wallet className="mr-2 h-4 w-4" />
+            {user?.username ? `@${user.username}` : 'Connected'}
+          </Button>
+        </div>
+      )
+    }
+
+    // In web or when network is wrong, show dropdown
     return (
       <div className="flex flex-col items-end gap-2">
         <DropdownMenu>
@@ -125,8 +163,8 @@ export function ConnectMenu() {
                 <Wallet className="mr-2 h-4 w-4" />
                 {isWrongNetwork ? (
                   <>Wrong Network</>
-                ) : isAuthenticated && user?.username ? (
-                  `@${user.username}`
+                ) : ensName ? (
+                  ensName
                 ) : (
                   address ? truncateEthAddress(address) : 'Connected'
                 )}

@@ -70,8 +70,14 @@ export function ChineseZodiacForm() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="bg-amber-50 border-amber-200 text-gray-800 placeholder:text-amber-400"
+          readOnly={isAuthenticated}
+          disabled={isAuthenticated}
         />
-        <p className="text-xs text-gray-600">Enter your Farcaster username without the @ symbol</p>
+        <p className="text-xs text-gray-600">
+          {isAuthenticated
+            ? "Your Farcaster username (auto-filled)"
+            : "Enter your Farcaster username without the @ symbol"}
+        </p>
       </div>
 
       <div className="space-y-2">
