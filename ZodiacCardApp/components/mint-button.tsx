@@ -17,7 +17,7 @@ import Image from "next/image"
 import { parseUnits, formatUnits, decodeEventLog, type Log } from "viem"
 import { zodiacNftAbi } from "@/lib/abis"
 import { type BaseError, ContractFunctionExecutionError } from 'viem'
-import { sdk } from "@farcaster/frame-sdk"
+import { sdk } from "@farcaster/miniapp-sdk"
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "42220")

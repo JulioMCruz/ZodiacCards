@@ -5,33 +5,35 @@ import "./globals.css"
 import { ClientThemeProvider } from "./components/client-theme-provider"
 import { WagmiConfig } from "@/providers/wagmi-provider"
 import { SdkInitializer } from "@/components/sdk-initializer"
+import { FarcasterProvider } from "@/contexts/FarcasterContext"
 
-const inter = Inter({ subsets: ["latin"] })
-
-
-const frameMetadata = {
-  version: "next",
-  imageUrl: "https://codalabs-public-assets.s3.us-east-1.amazonaws.com/ZodiacImages/ZodiacEmbedImage2.png",
-  aspectRatio: "3:2",
-  button: {
-    title: "Zodiac Cards",
-    action: {
-      type: "launch_frame",
-      name: "Zodiac Card",
-      url: process.env.NEXT_PUBLIC_SITE_URL,
-      splashImageUrl: "https://codalabs-public-assets.s3.us-east-1.amazonaws.com/ZodiacImages/ZodiacSplash.png",
-      splashBackgroundColor: "#18111f"
-    }
-  }
-}
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter"
+})
 
 export const metadata: Metadata = {
   title: "Zodiac - Cosmic Crypto Fortune",
   description: "Discover your crypto fortune based on your zodiac sign",
   generator: 'CodaLabs.xyz',
   other: {
-    'fc:frame': JSON.stringify(frameMetadata)
-  }  
+    'fc:frame': JSON.stringify({
+      version: "next",
+      imageUrl: "https://codalabs-public-assets.s3.us-east-1.amazonaws.com/ZodiacImages/ZodiacEmbedImage2.png",
+      aspectRatio: "3:2",
+      button: {
+        title: "Zodiac Cards",
+        action: {
+          type: "launch_frame",
+          name: "Zodiac Card",
+          url: process.env.NEXT_PUBLIC_SITE_URL || '',
+          splashImageUrl: "https://codalabs-public-assets.s3.us-east-1.amazonaws.com/ZodiacImages/ZodiacSplash.png",
+          splashBackgroundColor: "#18111f"
+        }
+      }
+    })
+  }
 }
 
 export default function RootLayout({
@@ -44,14 +46,13 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <ClientThemeProvider>
           <WagmiConfig>
-            <SdkInitializer />
-            {children}
+            <FarcasterProvider>
+              <SdkInitializer />
+              {children}
+            </FarcasterProvider>
           </WagmiConfig>
         </ClientThemeProvider>
       </body>
     </html>
   )
 }
-
-
-import './globals.css'

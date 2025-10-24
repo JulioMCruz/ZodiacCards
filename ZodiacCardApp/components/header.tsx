@@ -1,11 +1,6 @@
 "use client"
-import dynamic from "next/dynamic"
 
-// Dynamically import ConnectMenu with no SSR
-const ConnectMenu = dynamic(
-  () => import("@/components/connect-menu").then(mod => mod.ConnectMenu),
-  { ssr: false }
-)
+import { ConnectMenu } from "@/components/connect-menu"
 
 export function Header() {
   return (

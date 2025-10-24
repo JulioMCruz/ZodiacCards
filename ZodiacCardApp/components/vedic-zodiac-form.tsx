@@ -2,22 +2,31 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sparkles } from "lucide-react"
 import { getVedicZodiacSign } from "@/lib/zodiac-utils"
+import { useFarcaster } from "@/contexts/FarcasterContext"
 
 export function VedicZodiacForm() {
   const router = useRouter()
+  const { isAuthenticated, user } = useFarcaster()
   const [username, setUsername] = useState("")
   const [day, setDay] = useState("")
   const [month, setMonth] = useState("")
   const [year, setYear] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // Auto-populate username from Farcaster context
+  useEffect(() => {
+    if (isAuthenticated && user?.username && !username) {
+      setUsername(user.username)
+    }
+  }, [isAuthenticated, user, username])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

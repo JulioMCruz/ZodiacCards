@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Wallet, LogOut, ChevronDown, SwitchCamera } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { truncateEthAddress } from "@/lib/utils"
-import { sdk } from "@farcaster/frame-sdk"
+import { sdk } from "@farcaster/miniapp-sdk"
+import { useFarcaster } from "@/contexts/FarcasterContext"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +18,6 @@ import { celo, celoAlfajores } from 'wagmi/chains'
 
 export function ConnectMenu() {
   const [mounted, setMounted] = useState(false)
-  const { isConnected, address } = useAccount()
-  const { connect, connectors } = useConnect()
-  const { disconnect } = useDisconnect()
-  const [isFarcaster, setIsFarcaster] = useState(false)
-  const chainId = useChainId()
-  const { switchChain, isPending: isSwitchPending } = useSwitchChain()
   const [isWrongNetwork, setIsWrongNetwork] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -32,19 +27,35 @@ export function ConnectMenu() {
   const NETWORK_NAME = targetChain.name
 
   useEffect(() => {
-    const checkFarcasterContext = async () => {
-      try {
-        const context = await sdk.context
-        setIsFarcaster(!!context?.client?.clientFid)
-      } catch (error) {
-        console.error('Failed to get Farcaster context:', error)
-        setIsFarcaster(false)
-      }
-    }
-
-    checkFarcasterContext()
     setMounted(true)
   }, [])
+
+  // Call all hooks unconditionally (Rules of Hooks requirement)
+  const { isConnected, address } = useAccount()
+  const { connect, connectors } = useConnect()
+  const { disconnect } = useDisconnect()
+  const { isAuthenticated, user } = useFarcaster()
+  const chainId = useChainId()
+  const { switchChain, isPending: isSwitchPending } = useSwitchChain()
+
+  // Auto-connect in Farcaster environment
+  useEffect(() => {
+    const autoConnect = async () => {
+      if (mounted && isAuthenticated && !isConnected) {
+        console.log('🔗 Auto-connecting Farcaster wallet...')
+        try {
+          const farcasterConnector = connectors.find(c => c.id === 'farcasterMiniApp')
+          if (farcasterConnector) {
+            await connect({ connector: farcasterConnector })
+            console.log('✅ Auto-connected successfully')
+          }
+        } catch (error) {
+          console.error('❌ Auto-connect failed:', error)
+        }
+      }
+    }
+    autoConnect()
+  }, [mounted, isAuthenticated, isConnected, connectors, connect])
 
   // Check if we're on the wrong network and auto-switch if needed
   useEffect(() => {
@@ -103,7 +114,7 @@ export function ConnectMenu() {
       <div className="flex flex-col items-end gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
+            <Button
               variant={isWrongNetwork ? "destructive" : "outline"}
               className={cn(
                 isWrongNetwork ? "animate-pulse" : "bg-violet-600/10 text-violet-600 hover:bg-violet-600/20 hover:text-violet-700",
@@ -114,6 +125,8 @@ export function ConnectMenu() {
                 <Wallet className="mr-2 h-4 w-4" />
                 {isWrongNetwork ? (
                   <>Wrong Network</>
+                ) : isAuthenticated && user?.username ? (
+                  `@${user.username}`
                 ) : (
                   address ? truncateEthAddress(address) : 'Connected'
                 )}
@@ -154,12 +167,13 @@ export function ConnectMenu() {
     try {
       setError(null)
 
-      if (isFarcaster) {
-        const farcasterConnector = connectors.find(c => c.id === 'farcasterFrame')
+      if (isAuthenticated) {
+        // In Farcaster environment, use farcasterMiniApp connector
+        const farcasterConnector = connectors.find(c => c.id === 'farcasterMiniApp')
         if (!farcasterConnector) throw new Error('Farcaster connector not found')
         await connect({ connector: farcasterConnector })
-        // Auto-switch will happen via useEffect after connection
       } else {
+        // In web environment, try injected or WalletConnect
         const injectedConnector = connectors.find(c => c.id === 'injected')
         const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
 
@@ -170,7 +184,6 @@ export function ConnectMenu() {
         } else {
           throw new Error('No suitable wallet connector found')
         }
-        // Auto-switch will happen via useEffect after connection
       }
     } catch (error) {
       console.error('Failed to connect wallet:', error)

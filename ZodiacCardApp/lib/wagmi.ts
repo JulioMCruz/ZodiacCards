@@ -1,7 +1,7 @@
 import { http, createConfig } from 'wagmi'
 import { celo, celoAlfajores, base, baseSepolia } from 'wagmi/chains'
-import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector'
-import { injected, walletConnect } from 'wagmi/connectors'
+import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector'
+import { walletConnect } from 'wagmi/connectors'
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "44787")
@@ -51,7 +51,7 @@ export const config = createConfig({
   chains: [configuredChain, base, baseSepolia],
   transports,
   connectors: [
-    miniAppConnector(),
+    farcasterMiniApp(),
     walletConnect({
       projectId,
       showQrModal: true,
