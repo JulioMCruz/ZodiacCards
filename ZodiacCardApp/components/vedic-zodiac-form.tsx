@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Sparkles } from "lucide-react"
 import { getVedicZodiacSign } from "@/lib/zodiac-utils"
 import { useFarcaster } from "@/contexts/FarcasterContext"
+import { SelfVerifyButton } from "@/components/self-verify-button"
 
 export function VedicZodiacForm() {
   const router = useRouter()
@@ -27,6 +28,16 @@ export function VedicZodiacForm() {
       setUsername(user.username)
     }
   }, [isAuthenticated, user, username])
+
+  // Handle Self Protocol verification success
+  const handleSelfVerification = (dateOfBirth: string) => {
+    // dateOfBirth format: "YYYY-MM-DD"
+    const [yearStr, monthStr, dayStr] = dateOfBirth.split('-')
+    setYear(yearStr)
+    setMonth(monthStr)
+    setDay(dayStr)
+    setError("") // Clear any errors
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -135,6 +146,20 @@ export function VedicZodiacForm() {
           />
         </div>
       </div>
+
+      {/* Self Protocol verification button - only show in Farcaster environment */}
+      {isAuthenticated && (
+        <div className="space-y-2">
+          <SelfVerifyButton
+            onVerificationSuccess={handleSelfVerification}
+            disabled={isLoading}
+            variant="amber"
+          />
+          <p className="text-xs text-gray-600 text-center">
+            Verify your identity with Self Protocol to auto-fill your birth date
+          </p>
+        </div>
+      )}
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 

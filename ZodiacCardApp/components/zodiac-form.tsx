@@ -9,13 +9,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sparkles } from "lucide-react"
+import { SelfVerifyButton } from "@/components/self-verify-button"
+import { useFarcaster } from "@/contexts/FarcasterContext"
 
 export function ZodiacForm() {
   const router = useRouter()
+  const { isAuthenticated } = useFarcaster()
   const [username, setUsername] = useState("")
   const [birthYear, setBirthYear] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // Handle Self Protocol verification success
+  const handleSelfVerification = (dateOfBirth: string) => {
+    // dateOfBirth format: "YYYY-MM-DD"
+    const year = dateOfBirth.split('-')[0]
+    setBirthYear(year)
+    setError("") // Clear any errors
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -77,6 +88,19 @@ export function ZodiacForm() {
         />
         <p className="text-xs text-violet-300">Your Chinese zodiac sign will be determined by your birth year</p>
       </div>
+
+      {/* Self Protocol verification button - only show in Farcaster environment */}
+      {isAuthenticated && (
+        <div className="space-y-2">
+          <SelfVerifyButton
+            onVerificationSuccess={handleSelfVerification}
+            disabled={isLoading}
+          />
+          <p className="text-xs text-violet-300 text-center">
+            Verify your identity with Self Protocol to auto-fill your birth year
+          </p>
+        </div>
+      )}
 
       {error && <p className="text-red-300 text-sm">{error}</p>}
 
