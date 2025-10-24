@@ -124,16 +124,19 @@ export function MintButton({
         return
       }
 
-      // Check chain ID first
+      // Check chain ID first - if wrong network, switch and then continue
       if (chainId !== TARGET_CHAIN_ID) {
-        setError(`Please switch to ${NETWORK_NAME} to mint`)
+        setError(`Switching to ${NETWORK_NAME}...`)
         try {
           await switchChain({ chainId: TARGET_CHAIN_ID })
+          // Wait a moment for the chain switch to propagate
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          setError(null)
         } catch (error) {
           console.error('Failed to switch network:', error)
-          setError(`Failed to switch to ${NETWORK_NAME}. Please switch manually.`)
+          setError(`Failed to switch to ${NETWORK_NAME}. Please switch manually and try again.`)
+          return
         }
-        return
       }
 
       // No approval needed for native CELO payment

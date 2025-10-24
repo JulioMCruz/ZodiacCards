@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { base, baseSepolia } from 'wagmi/chains'
+import { celo, celoAlfajores } from 'wagmi/chains'
 
 export function ConnectMenu() {
   const [mounted, setMounted] = useState(false)
@@ -26,9 +26,9 @@ export function ConnectMenu() {
   const [isWrongNetwork, setIsWrongNetwork] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Get target chain from env
-  const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
-  const targetChain = TARGET_CHAIN_ID === 8453 ? base : baseSepolia
+  // Get target chain from env - CELO NETWORK
+  const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "42220")
+  const targetChain = TARGET_CHAIN_ID === 42220 ? celo : celoAlfajores
   const NETWORK_NAME = targetChain.name
 
   useEffect(() => {
@@ -46,13 +46,25 @@ export function ConnectMenu() {
     setMounted(true)
   }, [])
 
-  // Check if we're on the wrong network
+  // Check if we're on the wrong network and auto-switch if needed
   useEffect(() => {
     if (isConnected) {
       const wrongNetwork = chainId !== TARGET_CHAIN_ID
       setIsWrongNetwork(wrongNetwork)
+
       if (wrongNetwork) {
-        setError(`Please switch to ${NETWORK_NAME}`)
+        // Auto-switch to Celo on connection
+        const autoSwitch = async () => {
+          try {
+            setError(`Switching to ${NETWORK_NAME}...`)
+            await switchChain({ chainId: TARGET_CHAIN_ID })
+            setError(null)
+          } catch (switchError) {
+            console.error('Failed to auto-switch network:', switchError)
+            setError(`Please switch to ${NETWORK_NAME}`)
+          }
+        }
+        autoSwitch()
       } else {
         setError(null)
       }
@@ -60,7 +72,7 @@ export function ConnectMenu() {
       setIsWrongNetwork(false)
       setError(null)
     }
-  }, [chainId, isConnected, TARGET_CHAIN_ID, NETWORK_NAME])
+  }, [chainId, isConnected, TARGET_CHAIN_ID, NETWORK_NAME, switchChain])
 
   // Handle network switch
   const handleSwitchNetwork = async () => {
@@ -141,15 +153,16 @@ export function ConnectMenu() {
   const handleConnect = async () => {
     try {
       setError(null)
-      
+
       if (isFarcaster) {
         const farcasterConnector = connectors.find(c => c.id === 'farcasterFrame')
         if (!farcasterConnector) throw new Error('Farcaster connector not found')
         await connect({ connector: farcasterConnector })
+        // Auto-switch will happen via useEffect after connection
       } else {
         const injectedConnector = connectors.find(c => c.id === 'injected')
         const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
-        
+
         if (injectedConnector && window.ethereum) {
           await connect({ connector: injectedConnector })
         } else if (walletConnectConnector) {
@@ -157,6 +170,7 @@ export function ConnectMenu() {
         } else {
           throw new Error('No suitable wallet connector found')
         }
+        // Auto-switch will happen via useEffect after connection
       }
     } catch (error) {
       console.error('Failed to connect wallet:', error)
