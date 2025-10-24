@@ -1,9 +1,9 @@
 import { ethers, network } from "hardhat"
 
 async function main() {
-    // Ensure we're on Base Sepolia
-    if (network.name !== "baseSepolia") {
-        throw new Error("This script must be run on Base Sepolia network")
+    // Ensure we're on Celo Mainnet
+    if (network.name !== "celo") {
+        throw new Error("This script must be run on Celo Mainnet network")
     }
     console.log("🌍 Network:", network.name)
 
@@ -19,27 +19,28 @@ async function main() {
         throw new Error("PROXY_CONTRACT_ADDRESS not set in .env")
     }
 
-    // Get mint fee from .env and convert to USDC decimals (6)
-    const mintFeeUSDC = process.env.USDC_MINT_FEE
-    if (!mintFeeUSDC) {
-        throw new Error("USDC_MINT_FEE not set in .env")
-    }
+    // New mint fee: 5 CELO (18 decimals for native CELO)
+    const newMintFeeCELO = "5.0"
 
     // Create a wallet instance
     const provider = ethers.provider
     const wallet = new ethers.Wallet(ownerPrivateKey, provider)
     console.log("🔑 Using address:", wallet.address)
 
-    // Convert the fee to USDC decimals (6)
-    const newMintFee = ethers.parseUnits(mintFeeUSDC, 6)
+    // Check wallet balance
+    const balance = await provider.getBalance(wallet.address)
+    console.log("💵 Wallet balance:", ethers.formatEther(balance), "CELO")
+
+    // Convert the fee to CELO decimals (18)
+    const newMintFee = ethers.parseEther(newMintFeeCELO)
 
     // Get contract instance connected to owner wallet
     const zodiacNFT = await ethers.getContractAt("ZodiacNFT", proxyAddress, wallet)
 
     // Get current mint fee for comparison
     const currentMintFee = await zodiacNFT.mintFee()
-    console.log("\n💰 Current mint fee:", ethers.formatUnits(currentMintFee, 6), "USDC")
-    console.log("💰 New mint fee:", ethers.formatUnits(newMintFee, 6), "USDC")
+    console.log("\n💰 Current mint fee:", ethers.formatEther(currentMintFee), "CELO")
+    console.log("💰 New mint fee:", ethers.formatEther(newMintFee), "CELO")
 
     // Check if wallet is owner
     const owner = await zodiacNFT.owner()
@@ -54,22 +55,24 @@ async function main() {
     }
 
     try {
-        console.log("\n🚀 Updating mint fee on Base Sepolia...")
+        console.log("\n🚀 Updating mint fee on Celo Mainnet...")
         const tx = await zodiacNFT.setMintFee(newMintFee)
         console.log("⏳ Transaction hash:", tx.hash)
-        console.log(`📍 View on Explorer: https://sepolia.basescan.org/tx/${tx.hash}`)
+        console.log(`📍 View on Blockscout: https://celo.blockscout.com/tx/${tx.hash}`)
         console.log("Waiting for confirmation...")
 
-        // Wait for transaction confirmation with 2 blocks for Base Sepolia
+        // Wait for transaction confirmation with 2 blocks for Celo
         const receipt = await tx.wait(2)
         if (!receipt) throw new Error("Transaction failed")
-        
+
         console.log("✅ Transaction confirmed in block:", receipt.blockNumber)
-        console.log(`📍 Block Explorer: https://sepolia.basescan.org/block/${receipt.blockNumber}`)
+        console.log(`📍 Block Explorer: https://celo.blockscout.com/block/${receipt.blockNumber}`)
 
         // Verify the new fee
         const updatedMintFee = await zodiacNFT.mintFee()
-        console.log("\n✅ New mint fee verified:", ethers.formatUnits(updatedMintFee, 6), "USDC")
+        console.log("\n✅ New mint fee verified:", ethers.formatEther(updatedMintFee), "CELO")
+        console.log("\n📝 Don't forget to update the UI .env file:")
+        console.log(`   NEXT_PUBLIC_CELO_MINT_PRICE="5.0"`)
 
     } catch (error) {
         console.error("❌ Error updating mint fee:", error)
