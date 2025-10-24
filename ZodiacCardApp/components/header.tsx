@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAccount } from "wagmi"
 import { ConnectMenu } from "@/components/connect-menu"
 import { Menu, X, Home, Sparkles } from "lucide-react"
@@ -17,7 +17,22 @@ import {
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { isConnected } = useAccount()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="relative w-full flex flex-col items-center justify-center px-4 md:pt-16 pt-8">
+        <div className="fixed sm:absolute top-2 sm:top-4 right-2 sm:right-4 z-10">
+          <ConnectMenu />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center px-4 md:pt-16 pt-8">
