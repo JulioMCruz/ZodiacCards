@@ -67,6 +67,7 @@ export function ZodiacForm() {
         </Label>
         <Input
           id="username"
+          type="password"
           placeholder="@username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -81,6 +82,7 @@ export function ZodiacForm() {
         </Label>
         <Input
           id="birthYear"
+          type="password"
           placeholder="YYYY"
           value={birthYear}
           onChange={(e) => setBirthYear(e.target.value)}
