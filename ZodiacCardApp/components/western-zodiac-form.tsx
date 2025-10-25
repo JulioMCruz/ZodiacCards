@@ -94,6 +94,7 @@ export function WesternZodiacForm() {
         </Label>
         <Input
           id="username"
+          type="password"
           placeholder="@username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -115,6 +116,7 @@ export function WesternZodiacForm() {
           </Label>
           <Input
             id="day"
+            type="password"
             placeholder="DD"
             value={day}
             onChange={(e) => setDay(e.target.value)}
@@ -127,6 +129,7 @@ export function WesternZodiacForm() {
           </Label>
           <Input
             id="month"
+            type="password"
             placeholder="MM"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
@@ -139,6 +142,7 @@ export function WesternZodiacForm() {
           </Label>
           <Input
             id="year"
+            type="password"
             placeholder="YYYY"
             value={year}
             onChange={(e) => setYear(e.target.value)}
