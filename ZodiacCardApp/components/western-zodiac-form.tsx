@@ -94,7 +94,6 @@ export function WesternZodiacForm() {
         </Label>
         <Input
           id="username"
-          type="password"
           placeholder="@username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
