@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Sparkles } from "lucide-react"
 import { getChineseZodiacSign } from "@/lib/zodiac-utils"
 import { useFarcaster } from "@/contexts/FarcasterContext"
+import { SelfVerifyButton } from "@/components/self-verify-button"
 
 export function ChineseZodiacForm() {
   const router = useRouter()
@@ -25,6 +26,17 @@ export function ChineseZodiacForm() {
       setUsername(user.username)
     }
   }, [isAuthenticated, user, username])
+
+  // Handle Self Protocol verification success
+  const handleSelfVerification = (dateOfBirth: string) => {
+    console.log('🎯 Self verification received:', dateOfBirth)
+    // dateOfBirth format: "YYYY-MM-DD"
+    const yearStr = dateOfBirth.split('-')[0]
+    console.log('📅 Parsed year:', yearStr)
+    setYear(yearStr)
+    setError("") // Clear any errors
+    console.log('✅ State updated successfully')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -86,6 +98,8 @@ export function ChineseZodiacForm() {
         </Label>
         <Input
           id="year"
+          type="password"
+          inputMode="numeric"
           placeholder="YYYY"
           value={year}
           onChange={(e) => setYear(e.target.value)}
@@ -93,6 +107,20 @@ export function ChineseZodiacForm() {
         />
         <p className="text-xs text-gray-600">Your Chinese zodiac sign will be determined by your birth year</p>
       </div>
+
+      {/* Self Protocol verification button - only show in Farcaster environment */}
+      {isAuthenticated && (
+        <div className="space-y-2">
+          <SelfVerifyButton
+            onVerificationSuccess={handleSelfVerification}
+            disabled={isLoading}
+            variant="amber"
+          />
+          <p className="text-xs text-gray-600 text-center">
+            Verify your identity with Self Protocol to auto-fill your birth year
+          </p>
+        </div>
+      )}
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
