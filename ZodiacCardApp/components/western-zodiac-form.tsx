@@ -31,12 +31,15 @@ export function WesternZodiacForm() {
 
   // Handle Self Protocol verification success
   const handleSelfVerification = (dateOfBirth: string) => {
+    console.log('🎯 Self verification received:', dateOfBirth)
     // dateOfBirth format: "YYYY-MM-DD"
     const [yearStr, monthStr, dayStr] = dateOfBirth.split('-')
+    console.log('📅 Parsed date:', { year: yearStr, month: monthStr, day: dayStr })
     setYear(yearStr)
     setMonth(monthStr)
     setDay(dayStr)
     setError("") // Clear any errors
+    console.log('✅ State updated successfully')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,6 +119,7 @@ export function WesternZodiacForm() {
           <Input
             id="day"
             type="password"
+            inputMode="numeric"
             placeholder="DD"
             value={day}
             onChange={(e) => setDay(e.target.value)}
@@ -129,6 +133,7 @@ export function WesternZodiacForm() {
           <Input
             id="month"
             type="password"
+            inputMode="numeric"
             placeholder="MM"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
@@ -142,6 +147,7 @@ export function WesternZodiacForm() {
           <Input
             id="year"
             type="password"
+            inputMode="numeric"
             placeholder="YYYY"
             value={year}
             onChange={(e) => setYear(e.target.value)}
