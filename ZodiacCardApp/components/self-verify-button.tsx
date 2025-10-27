@@ -22,10 +22,20 @@ export function SelfVerifyButton({ onVerificationSuccess, disabled, variant = "v
   const [selfApp, setSelfApp] = useState<SelfApp | null>(null)
   const [mounted, setMounted] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [pollingIntervalId, setPollingIntervalId] = useState<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalId) {
+        clearInterval(pollingIntervalId)
+      }
+    }
+  }, [pollingIntervalId])
 
   // Initialize Self app
   useEffect(() => {
@@ -100,9 +110,27 @@ export function SelfVerifyButton({ onVerificationSuccess, disabled, variant = "v
         try {
           await sdk.actions.openUrl(universalLink)
 
-          // Poll for verification result
-          // In production, you'd use a websocket or webhook to get the result
+          // Clear any existing polling
+          if (pollingIntervalId) {
+            clearInterval(pollingIntervalId)
+          }
+
+          let pollAttempts = 0
+          const maxPollAttempts = 30 // 30 attempts * 5 seconds = 2.5 minutes max
+
+          // Poll for verification result with exponential backoff
           const pollForResult = setInterval(async () => {
+            pollAttempts++
+
+            // Stop after max attempts
+            if (pollAttempts > maxPollAttempts) {
+              clearInterval(pollForResult)
+              setPollingIntervalId(null)
+              setIsLoading(false)
+              setError('Verification timeout. Please try again.')
+              return
+            }
+
             try {
               // Check if verification completed
               const response = await fetch('/api/verify-self/check', {
@@ -115,29 +143,27 @@ export function SelfVerifyButton({ onVerificationSuccess, disabled, variant = "v
 
               if (data.verified && data.date_of_birth) {
                 clearInterval(pollForResult)
+                setPollingIntervalId(null)
                 setIsLoading(false)
                 onVerificationSuccess(data.date_of_birth)
               }
             } catch (err) {
               console.error('Polling error:', err)
             }
-          }, 2000) // Poll every 2 seconds
+          }, 5000) // Poll every 5 seconds (reduced from 2s)
 
-          // Stop polling after 5 minutes
-          setTimeout(() => {
-            clearInterval(pollForResult)
-            setIsLoading(false)
-          }, 300000)
+          setPollingIntervalId(pollForResult)
 
         } catch (err) {
           console.error('Error opening Self app with SDK:', err)
-          // Fallback to window.open
-          window.open(universalLink, '_blank')
+          setIsLoading(false)
+          setError('Failed to open verification. Please try copying the link.')
         }
       } else {
-        // In browser - open in new tab
+        // In browser - open in new tab and provide manual check
         window.open(universalLink, '_blank')
         setIsLoading(false)
+        setError('Please complete verification in the opened tab, then refresh this page.')
       }
 
     } catch (err) {

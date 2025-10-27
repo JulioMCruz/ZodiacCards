@@ -6,10 +6,23 @@ declare global {
 }
 
 export async function POST(request: NextRequest) {
+  const requestId = Math.random().toString(36).substring(7)
+
   try {
-    const { userId } = await request.json()
+    const body = await request.json()
+    const { userId } = body
+
+    console.log(`[${requestId}] 📥 Verification check request:`, {
+      userId,
+      bodyReceived: !!body,
+      headers: {
+        contentType: request.headers.get('content-type'),
+        origin: request.headers.get('origin')
+      }
+    })
 
     if (!userId) {
+      console.log(`[${requestId}] ❌ Missing userId in request`)
       return NextResponse.json({
         error: 'User ID is required'
       }, { status: 400 })
@@ -19,28 +32,42 @@ export async function POST(request: NextRequest) {
     global.verificationCache = global.verificationCache || new Map()
 
     const normalizedUserId = userId.toLowerCase()
-    console.log('🔍 Checking verification for user:', normalizedUserId)
-    console.log('🗂️ Cache keys:', Array.from(global.verificationCache.keys()))
+    const cacheSize = global.verificationCache.size
+    const cacheKeys = Array.from(global.verificationCache.keys())
+
+    console.log(`[${requestId}] 🔍 Cache status:`, {
+      normalizedUserId,
+      cacheSize,
+      cacheKeys,
+      hasEntry: global.verificationCache.has(normalizedUserId)
+    })
 
     // Check if verification exists for this user
     const verification = global.verificationCache.get(normalizedUserId)
 
     if (verification) {
-      console.log('✅ Found verification:', verification)
-
-      // Clean up old entries (older than 1 hour)
       const now = Date.now()
       const oneHourAgo = now - 3600000
+      const age = now - verification.timestamp
+      const ageMinutes = Math.floor(age / 60000)
 
+      console.log(`[${requestId}] ✅ Found verification:`, {
+        verified: verification.verified,
+        hasDOB: !!verification.date_of_birth,
+        ageMinutes,
+        timestamp: new Date(verification.timestamp).toISOString()
+      })
+
+      // Clean up old entries (older than 1 hour)
       if (verification.timestamp < oneHourAgo) {
         global.verificationCache.delete(normalizedUserId)
-        console.log('❌ Verification expired for user:', normalizedUserId)
+        console.log(`[${requestId}] ⏰ Verification expired (${ageMinutes} minutes old)`)
         return NextResponse.json({
           verified: false
         })
       }
 
-      console.log('✅ Returning verification data:', verification.date_of_birth)
+      console.log(`[${requestId}] ✅ Returning valid verification`)
       return NextResponse.json({
         verified: verification.verified,
         date_of_birth: verification.date_of_birth
@@ -48,13 +75,16 @@ export async function POST(request: NextRequest) {
     }
 
     // No verification found yet
-    console.log('❌ No verification found for user:', normalizedUserId)
+    console.log(`[${requestId}] ❌ No verification found - cache empty for this user`)
     return NextResponse.json({
       verified: false
     })
 
   } catch (error) {
-    console.error('Check verification error:', error)
+    console.error(`[${requestId}] 🔴 Check verification error:`, {
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined
+    })
 
     return NextResponse.json({
       error: error instanceof Error ? error.message : 'Unknown error occurred'
