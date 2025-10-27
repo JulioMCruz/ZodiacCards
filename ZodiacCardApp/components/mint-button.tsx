@@ -19,6 +19,7 @@ import { zodiacNftAbi } from "@/lib/abis"
 import { type BaseError, ContractFunctionExecutionError } from 'viem'
 import { sdk } from "@farcaster/miniapp-sdk"
 import { useFarcaster } from "@/contexts/FarcasterContext"
+import { generateReferralTag, submitDivviReferral, isDivviEnabled } from "@/lib/divvi"
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "42220")
@@ -176,15 +177,31 @@ export function MintButton({
       // Mint NFT with native CELO payment
       setMintStep('minting')
       try {
+        // Generate Divvi referral tag if enabled
+        const divviEnabled = isDivviEnabled()
+        const referralTag = divviEnabled ? generateReferralTag(address) : undefined
+
+        console.log('🎯 Minting with Divvi tracking:', {
+          enabled: divviEnabled,
+          user: address,
+          hasTag: !!referralTag
+        })
+
         const mintHash = await writeContract({
           address: CONTRACT_ADDRESS,
           abi: zodiacNftAbi,
           functionName: 'mint',
           args: [address, metadataIpfsUrl],
           value: MINT_FEE, // Send CELO with the transaction
+          dataSuffix: referralTag ? `0x${referralTag}` : undefined, // Add Divvi referral tag
         })
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash: mintHash })
+
+        // Submit referral to Divvi after successful transaction
+        if (divviEnabled && chainId) {
+          await submitDivviReferral(mintHash, chainId)
+        }
         const mintEvent = receipt.logs.find(log => {
           try {
             const event = decodeEventLog({
