@@ -153,7 +153,7 @@ export function SelfVerifyButton({ onVerificationSuccess, disabled, variant = "v
 
   const buttonStyles = variant === "amber"
     ? "w-full border-amber-200 bg-amber-50/80 hover:bg-amber-100 text-amber-950"
-    : "w-full border-violet-300/50 bg-white/10 hover:bg-white/20 text-white"
+    : "w-full border-violet-300/50 bg-white/10 hover:bg-white/20 text-gray-800"
 
   const textStyles = variant === "amber" ? "text-amber-950" : "text-violet-300"
   const errorStyles = variant === "amber" ? "text-red-600" : "text-red-300"

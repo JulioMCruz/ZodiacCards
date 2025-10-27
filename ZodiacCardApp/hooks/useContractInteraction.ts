@@ -38,13 +38,15 @@ export function useContractInteraction() {
     abi,
     functionName,
     args,
-    value
+    value,
+    dataSuffix
   }: {
     address: `0x${string}`
     abi: any
     functionName: string
     args: unknown[]
     value?: bigint
+    dataSuffix?: `0x${string}` // For Divvi referral tracking
   }): Promise<Hash> => {
     if (!publicClient) throw new Error('Public client not ready')
     if (!walletClient) throw new Error('Wallet not connected')
@@ -58,6 +60,7 @@ export function useContractInteraction() {
           functionName,
           args,
           value, // Support native token payments (CELO)
+          dataSuffix, // Support Divvi referral tracking
         })
 
         const hash = await walletClient.writeContract(request)
