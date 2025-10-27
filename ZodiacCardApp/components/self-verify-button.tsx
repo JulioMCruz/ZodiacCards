@@ -116,9 +116,9 @@ export function SelfVerifyButton({ onVerificationSuccess, disabled, variant = "v
           }
 
           let pollAttempts = 0
-          const maxPollAttempts = 30 // 30 attempts * 5 seconds = 2.5 minutes max
+          const maxPollAttempts = 60 // 60 attempts * 5 seconds = 5 minutes max
 
-          // Poll for verification result with exponential backoff
+          // Poll for verification result
           const pollForResult = setInterval(async () => {
             pollAttempts++
 
@@ -127,7 +127,8 @@ export function SelfVerifyButton({ onVerificationSuccess, disabled, variant = "v
               clearInterval(pollForResult)
               setPollingIntervalId(null)
               setIsLoading(false)
-              setError('Verification timeout. Please try again.')
+              setError('Verification timeout. Please try again or refresh the page.')
+              console.log(`⏱️ Polling stopped after ${pollAttempts} attempts (${(pollAttempts * 5) / 60} minutes)`)
               return
             }
 
