@@ -30,7 +30,7 @@ The `.env` file is already configured for Celo Mainnet! Just verify these key va
 # Core Configuration (already set)
 NEXT_PUBLIC_CHAIN_ID="42220"
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
-NEXT_PUBLIC_CELO_MINT_PRICE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
 
 # Add your API keys (required for full functionality)
 OPENAI_API_KEY="your-openai-key-here"
@@ -60,8 +60,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
    - Select zodiac type (Western recommended for testing)
    - Click "Generate Fortune"
 
-3. **Mint NFT** (costs ~1.01 CELO)
-   - Click "Mint NFT • 1.0 CELO"
+3. **Mint NFT** (costs ~10.01 CELO)
+   - Click "Mint NFT • 10.0 CELO"
    - Wait for IPFS upload (~30 seconds)
    - Approve transaction in wallet
    - Wait for confirmation (~10 seconds)
@@ -100,7 +100,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Block Explorer: `https://celoscan.io`
 
 ### "Insufficient CELO balance"
-**Fix**: You need at least 1.05 CELO (1.0 mint + 0.05 gas)
+**Fix**: You need at least 10.05 CELO (1.0 mint + 0.05 gas)
 - Buy CELO on exchange
 - Bridge from another chain
 - Or use Celo Alfajores testnet for free testing
@@ -162,8 +162,8 @@ After minting, click "Share" to post to Warpcast with:
    - Both offer free tiers
 
 3. **Monitor gas costs**:
-   - Typical mint: 1.01-1.05 CELO
-   - Most cost goes to treasury (1.0 CELO)
+   - Typical mint: 10.01-10.05 CELO
+   - Most cost goes to treasury (10.0 CELO)
    - Gas is cheap on Celo (~0.01-0.05)
 
 4. **Development workflow**:

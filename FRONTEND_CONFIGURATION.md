@@ -11,14 +11,14 @@ All frontend environment files have been updated with the deployed Celo mainnet 
 ### 1. `.env` (Development)
 ```bash
 NEXT_PUBLIC_CHAIN_ID="42220" # Celo Mainnet
-NEXT_PUBLIC_CELO_MINT_PRICE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
 ```
 
 ### 2. `.env.production` (Production)
 ```bash
 NEXT_PUBLIC_CHAIN_ID="42220" # Celo Mainnet
-NEXT_PUBLIC_CELO_MINT_PRICE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
 ```
 
@@ -39,7 +39,7 @@ Updated with mainnet addresses as default values
 - **Implementation**: `0xd1846BE5C31604496C63be66CE33Af67d68ecf84`
 
 ### Pricing
-- **Mint Fee**: Changed from `5.0 CELO` → `1.0 CELO` (matches deployed contract)
+- **Mint Fee**: Changed from `10.0 CELO` → `10.0 CELO` (matches deployed contract)
 
 ---
 
@@ -96,7 +96,7 @@ console.log('Chain ID:', window.ethereum?.chainId)
 1. Enter birth details
 2. Generate fortune
 3. Click "Mint NFT"
-4. Verify mint fee shows: **1.0 CELO**
+4. Verify mint fee shows: **10.0 CELO**
 5. Confirm transaction
 6. Wait for transaction confirmation
 
@@ -139,7 +139,7 @@ open https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158
 **Solution**:
 ```bash
 # Update mint price in .env
-NEXT_PUBLIC_CELO_MINT_PRICE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
 
 # Restart dev server
 ```
@@ -176,7 +176,7 @@ NEXT_PUBLIC_RPC_URL_CELO="https://forno.celo.org"
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
 
 # Pricing
-NEXT_PUBLIC_CELO_MINT_PRICE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
 
 # WalletConnect
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="your-project-id"
@@ -210,7 +210,7 @@ OPENAI_API_KEY="your-key"
 - Prompts user to switch if wrong network
 
 ### ✅ NFT Minting
-- Shows correct 1.0 CELO price
+- Shows correct 10.0 CELO price
 - Connects to deployed contract
 - Uploads metadata to IPFS
 - Generates on-chain transaction
@@ -263,12 +263,12 @@ Your ZodiacCardApp frontend is now configured for Celo mainnet and ready to mint
 
 **Contract**: `0x415Df58904f56A159748476610B8830db2548158`
 **Network**: Celo Mainnet (42220)
-**Mint Fee**: 1.0 CELO
+**Mint Fee**: 10.0 CELO
 
 ### Next Steps:
 
 1. **Test locally**: `cd ZodiacCardApp && npm run dev`
-2. **Test minting**: Mint a test NFT with 1.0 CELO
+2. **Test minting**: Mint a test NFT with 10.0 CELO
 3. **Deploy**: Deploy to Vercel/Netlify with production env vars
 4. **Monitor**: Set up monitoring and analytics
 

@@ -40,7 +40,7 @@ https://celoscan.io/address/0xd1846BE5C31604496C63be66CE33Af67d68ecf84
 | Symbol | ZODIAC |
 | Owner | 0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f |
 | Treasury | 0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f |
-| Mint Fee | 1.0 CELO |
+| Mint Fee | 10.0 CELO |
 | Royalty | 2.5% (ERC2981) |
 | Proxy Type | UUPS (Upgradeable) |
 | Payment Method | Native CELO (18 decimals) |
@@ -52,7 +52,7 @@ https://celoscan.io/address/0xd1846BE5C31604496C63be66CE33Af67d68ecf84
 All deployment checks passed:
 - ✓ Owner address matches configuration
 - ✓ Treasury address matches configuration
-- ✓ Mint fee correctly set to 1.0 CELO
+- ✓ Mint fee correctly set to 10.0 CELO
 - ✓ Contract is upgradeable via UUPS proxy
 - ✓ ERC721 + ERC2981 standards implemented
 
@@ -78,7 +78,7 @@ NEXT_PUBLIC_RPC_URL_CELO=https://forno.celo.org
 **Mint NFT**:
 ```solidity
 function mint(address to, string memory metadataURI) public payable returns (uint256)
-// Requires: 1.0 CELO payment
+// Requires: 10.0 CELO payment
 // Returns: Token ID
 ```
 
@@ -143,7 +143,7 @@ console.log("NFT minted!");
 1. Go to: https://celo.blockscout.com/token/0x415Df58904f56A159748476610B8830db2548158
 2. Click "Write Contract" tab
 3. Connect your wallet
-4. Use `mint` function with 1.0 CELO
+4. Use `mint` function with 10.0 CELO
 5. View your NFT: https://celo.blockscout.com/token/0x415Df58904f56A159748476610B8830db2548158/instance/[TOKEN_ID]
 
 ---

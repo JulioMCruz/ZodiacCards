@@ -13,7 +13,7 @@
 **Deployed Contract**: `0x415Df58904f56A159748476610B8830db2548158`
 - [View on Celoscan](https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158)
 - ✅ **Verified Contract** - Source code publicly available
-- Mint Fee: **5.0 CELO** (native token payment)
+- Mint Fee: **10.0 CELO** (native token payment)
 - Royalty: 2.5% (ERC2981)
 - Proxy Type: UUPS Upgradeable
 - Compiler: Solidity v0.8.20 with 200 optimization runs
@@ -31,7 +31,7 @@ The integration with Farcaster's social protocol allows users to share their for
 
 ## Features
 
-- 🎴 Mint unique Zodiac Fortune NFTs for **5.0 CELO**
+- 🎴 Mint unique Zodiac Fortune NFTs for **10.0 CELO**
 - 🔮 AI-powered fortune predictions using OpenAI GPT-4
 - 🔐 **Self Protocol Integration** - Privacy-preserving identity verification
   - Zero-knowledge proof verification for date of birth
@@ -47,7 +47,7 @@ The integration with Farcaster's social protocol allows users to share their for
 - 🔄 Secondary market trading capabilities
 - 🖼️ Farcaster Frames integration for social sharing
 - 🌐 Native Celo blockchain deployment (carbon-negative)
-- 💰 Pay with native CELO tokens - **5.0 CELO** per mint
+- 💰 Pay with native CELO tokens - **10.0 CELO** per mint
 - 📱 Optimized for Farcaster Mini App experience
 
 ## 🔒 Security
