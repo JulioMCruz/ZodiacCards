@@ -12,7 +12,7 @@ async function main() {
   // Get configuration from environment
   const ownerAddress = process.env.DEPLOYER_ADDRESS;
   const treasuryAddress = process.env.TREASURY_ADDRESS;
-  const celoMintFee = process.env.CELO_MINT_FEE || "5.0";
+  const celoMintFee = process.env.CELO_MINT_FEE || "10.0";
 
   // Validate required environment variables
   if (!ownerAddress || !treasuryAddress) {

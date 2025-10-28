@@ -2,7 +2,7 @@
 
 ## ✅ Pre-Deployment Checklist
 
-All contract updates have been completed. The deployment script now correctly uses native CELO tokens (18 decimals) with a 5 CELO mint fee.
+All contract updates have been completed. The deployment script now correctly uses native CELO tokens (18 decimals) with a 10 CELO mint fee.
 
 ## 📋 Requirements
 
@@ -91,7 +91,7 @@ Expected output:
 📝 Deployment Configuration:
 - Name: Zodiac NFT
 - Symbol: ZODIAC
-- Mint Fee: 5.0 CELO
+- Mint Fee: 10.0 CELO
 
 🚀 Deploying ZodiacNFT...
 ✅ Deployment completed successfully!
@@ -101,7 +101,7 @@ Expected output:
 ⚡️ Implementation Address: 0x...
 ⚡️ Owner: 0x...
 ⚡️ Treasury: 0x...
-⚡️ Mint Fee: 5.0 CELO
+⚡️ Mint Fee: 10.0 CELO
 ```
 
 ### Save Deployment Addresses
@@ -163,12 +163,12 @@ console.log("NFT minted!");
 - **Proxy Pattern**: UUPS (Universal Upgradeable Proxy Standard)
 - **Royalties**: ERC2981 - 2.5% default royalty
 - **Payment**: Native CELO tokens (18 decimals)
-- **Mint Fee**: 5.0 CELO (configurable by owner)
+- **Mint Fee**: 10.0 CELO (configurable by owner)
 
 ### Key Functions
 
 **User Functions**:
-- `mint(address to, string memory metadataURI) payable` - Mint new NFT (requires 5 CELO)
+- `mint(address to, string memory metadataURI) payable` - Mint new NFT (requires 10 CELO)
 - `tokenURI(uint256 tokenId)` - Get metadata URI for token
 - `nextTokenId()` - Get next token ID to be minted
 

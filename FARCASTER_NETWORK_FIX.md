@@ -198,7 +198,7 @@ if (chainId !== TARGET_CHAIN_ID) {
 
 **Ready to Mint**:
 ```
-✨ Sparkles icon: "Mint NFT • 1.0 CELO"
+✨ Sparkles icon: "Mint NFT • 10.0 CELO"
 ```
 
 **Minting**:
@@ -224,7 +224,7 @@ if (chainId !== TARGET_CHAIN_ID) {
 NEXT_PUBLIC_CHAIN_ID=42220
 NEXT_PUBLIC_RPC_URL_CELO=https://forno.celo.org
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x415Df58904f56A159748476610B8830db2548158
-NEXT_PUBLIC_CELO_MINT_PRICE=1.0
+NEXT_PUBLIC_CELO_MINT_PRICE=10.0
 
 # WalletConnect (Required for wallet connection)
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id

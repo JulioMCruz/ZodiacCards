@@ -11,7 +11,7 @@ const deployZodiacNFT: DeployFunction = async function (hre: HardhatRuntimeEnvir
   // Get required addresses from environment variables
   const ownerAddress = process.env.DEPLOYER_ADDRESS;
   const treasuryAddress = process.env.TREASURY_ADDRESS;
-  const celoMintFee = process.env.CELO_MINT_FEE || "5.0";
+  const celoMintFee = process.env.CELO_MINT_FEE || "10.0";
 
   if (!ownerAddress || !treasuryAddress) {
     throw new Error("Required environment variables not set (DEPLOYER_ADDRESS, TREASURY_ADDRESS)");

@@ -19,8 +19,8 @@ async function main() {
         throw new Error("PROXY_CONTRACT_ADDRESS not set in .env")
     }
 
-    // New mint fee: 5 CELO (18 decimals for native CELO)
-    const newMintFeeCELO = "5.0"
+    // New mint fee: 10 CELO (18 decimals for native CELO)
+    const newMintFeeCELO = "10.0"
 
     // Create a wallet instance
     const provider = ethers.provider
@@ -72,7 +72,7 @@ async function main() {
         const updatedMintFee = await zodiacNFT.mintFee()
         console.log("\n✅ New mint fee verified:", ethers.formatEther(updatedMintFee), "CELO")
         console.log("\n📝 Don't forget to update the UI .env file:")
-        console.log(`   NEXT_PUBLIC_CELO_MINT_PRICE="5.0"`)
+        console.log(`   NEXT_PUBLIC_CELO_MINT_PRICE="10.0"`)
 
     } catch (error) {
         console.error("❌ Error updating mint fee:", error)

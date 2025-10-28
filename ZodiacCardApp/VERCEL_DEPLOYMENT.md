@@ -162,7 +162,7 @@ vercel --prod
    - Connect wallet
    - Select zodiac sign
    - Generate fortune
-   - Mint NFT (costs 1.0 CELO)
+   - Mint NFT (costs 10.0 CELO)
 
 ---
 

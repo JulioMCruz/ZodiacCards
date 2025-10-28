@@ -8,7 +8,7 @@ Complete checklist to verify the frontend app works correctly with the deployed 
 - [ ] `.env` file configured with Celo Mainnet settings
 - [ ] Contract address: `0x415Df58904f56A159748476610B8830db2548158`
 - [ ] Chain ID: `42220`
-- [ ] Mint price: `1.0` CELO
+- [ ] Mint price: `10.0` CELO
 - [ ] All API keys configured (OpenAI, Pinata, AWS)
 
 ### Wallet Setup
@@ -23,13 +23,13 @@ Complete checklist to verify the frontend app works correctly with the deployed 
 - [x] `mint-button.tsx` updated to use native CELO
 - [x] USDC approval logic removed
 - [x] Native CELO payment with `value` parameter
-- [x] Mint fee set to 1.0 CELO (18 decimals)
+- [x] Mint fee set to 10.0 CELO (18 decimals)
 - [x] Network name changed to "Celo Mainnet"
 - [x] Blockscout URLs updated for Celo network
 
 ### Environment Variables
 - [x] `NEXT_PUBLIC_CHAIN_ID="42220"`
-- [x] `NEXT_PUBLIC_CELO_MINT_PRICE="1.0"`
+- [x] `NEXT_PUBLIC_CELO_MINT_PRICE="10.0"`
 - [x] `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"`
 - [x] `NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"`
 - [x] `NEXT_PUBLIC_RPC_URL_CELO="https://forno.celo.org"`
@@ -86,20 +86,20 @@ window.ethereum.chainId
 
 ### 5. Mint Button Display
 **Verify button shows:**
-- [ ] "Mint NFT • 1.0 CELO" (when connected)
+- [ ] "Mint NFT • 10.0 CELO" (when connected)
 - [ ] "Switch to Celo Mainnet" (if wrong network)
 - [ ] "Connect Wallet" (if not connected)
 
 ### 6. Pre-Mint Validation
 **Check wallet balance:**
-- [ ] Wallet has at least 1.05 CELO (1.0 mint + gas)
+- [ ] Wallet has at least 10.05 CELO (1.0 mint + gas)
 - [ ] Wallet is on Celo Mainnet
 - [ ] Contract address matches deployed contract
 
 ### 7. Minting Process
 
 #### Step 1: Click Mint
-- [ ] Click "Mint NFT • 1.0 CELO" button
+- [ ] Click "Mint NFT • 10.0 CELO" button
 - [ ] Button shows "Uploading to IPFS..."
 - [ ] No approval transaction (native CELO doesn't need approval)
 
@@ -113,7 +113,7 @@ window.ethereum.chainId
 - [ ] Wallet prompts transaction approval
 - [ ] Transaction shows:
   - **To**: `0x415Df58904f56A159748476610B8830db2548158`
-  - **Value**: `1.0 CELO`
+  - **Value**: `10.0 CELO`
   - **Gas**: ~0.01-0.05 CELO
   - **Function**: `mint(address,string)`
 
@@ -143,7 +143,7 @@ https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158
 - [ ] Verify transaction details:
   - **From**: Your wallet address
   - **To**: Contract address
-  - **Value**: 1.0 CELO
+  - **Value**: 10.0 CELO
   - **Status**: Success ✅
   - **Function**: `mint`
 
@@ -195,8 +195,8 @@ npx hardhat console --network celo
 - [ ] Accept → App updates to correct network
 
 ### Insufficient Balance
-- [ ] Try minting with < 1.0 CELO
-- [ ] Error message: "Insufficient CELO balance. You need 1.0 CELO to mint."
+- [ ] Try minting with < 10.0 CELO
+- [ ] Error message: "Insufficient CELO balance. You need 10.0 CELO to mint."
 - [ ] Transaction doesn't proceed
 
 ### Transaction Rejection
@@ -223,7 +223,7 @@ npx hardhat console --network celo
 
 ### Gas Costs
 - [ ] Minting gas cost: ~0.01-0.05 CELO
-- [ ] Total cost (mint + gas): ~1.01-1.05 CELO
+- [ ] Total cost (mint + gas): ~1.01-10.05 CELO
 - [ ] No failed transactions due to gas
 
 ### User Experience
@@ -257,7 +257,7 @@ npx hardhat console --network celo
 ### README.md
 - [x] Contract address updated
 - [x] Network changed to Celo Mainnet
-- [x] Mint price updated to 1.0 CELO
+- [x] Mint price updated to 10.0 CELO
 - [x] Deployment links accurate
 
 ### DEPLOYMENT_SUCCESS.md

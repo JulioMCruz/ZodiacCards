@@ -27,7 +27,7 @@ const NETWORK_NAME = TARGET_CHAIN_ID === 42220 ? "Celo Mainnet" : "Celo Alfajore
 
 // Get contract addresses from environment variables
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS as `0x${string}`
-const MINT_FEE = parseUnits(process.env.NEXT_PUBLIC_CELO_MINT_PRICE || "1.0", 18) // CELO with 18 decimals
+const MINT_FEE = parseUnits(process.env.NEXT_PUBLIC_CELO_MINT_PRICE || "10.0", 18) // CELO with 18 decimals
 
 // Configure Blockscout (Celo NFT Explorer) URL based on network
 const NFT_EXPLORER_URL = TARGET_CHAIN_ID === 42220

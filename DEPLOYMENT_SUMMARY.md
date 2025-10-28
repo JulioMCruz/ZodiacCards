@@ -24,7 +24,7 @@ Owner/Treasury:         0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
 ```
 Name:           Zodiac NFT
 Symbol:         ZODIAC
-Mint Fee:       1.0 CELO (native payment)
+Mint Fee:       10.0 CELO (native payment)
 Royalty:        2.5% (ERC2981 standard)
 Payment:        Native CELO (18 decimals)
 Upgradeability: UUPS proxy pattern
@@ -40,7 +40,7 @@ Upgradeability: UUPS proxy pattern
 
 ### 1. Smart Contract Deployment ✅
 - [x] Deployed ZodiacNFT contract to Celo Mainnet
-- [x] Configured with 1.0 CELO mint fee
+- [x] Configured with 10.0 CELO mint fee
 - [x] Native CELO payment (no USDC)
 - [x] UUPS upgradeable proxy pattern
 - [x] ERC2981 royalty standard (2.5%)
@@ -53,7 +53,7 @@ Upgradeability: UUPS proxy pattern
    - ✅ Changed network from Base to Celo Mainnet
    - ✅ Removed USDC approval logic
    - ✅ Implemented native CELO payment with `value` parameter
-   - ✅ Updated mint fee to 1.0 CELO (18 decimals)
+   - ✅ Updated mint fee to 10.0 CELO (18 decimals)
    - ✅ Changed all error messages to reference CELO
    - ✅ Updated Blockscout URLs for Celo network
    - ✅ Removed `approving` mint step (no approval needed)
@@ -65,7 +65,7 @@ Upgradeability: UUPS proxy pattern
 3. **`ZodiacCardApp/.env`**
    - ✅ Changed `NEXT_PUBLIC_CHAIN_ID` to `42220`
    - ✅ Added deployed contract addresses
-   - ✅ Changed mint price to `1.0 CELO`
+   - ✅ Changed mint price to `10.0 CELO`
    - ✅ Removed USDC-related variables
 
 4. **`ZodiacCardApp/.env.production`**
@@ -115,7 +115,7 @@ Upgradeability: UUPS proxy pattern
 | **Network** | Base Mainnet (8453) | Celo Mainnet (42220) |
 | **Payment Token** | USDC (ERC20) | Native CELO |
 | **Decimals** | 6 (USDC) | 18 (CELO) |
-| **Mint Fee** | 2.99 USDC | 1.0 CELO |
+| **Mint Fee** | 2.99 USDC | 10.0 CELO |
 | **Approval Needed** | Yes (2 transactions) | No (1 transaction) |
 | **Contract Address** | Base address | `0x415Df58904f56A159748476610B8830db2548158` |
 | **Explorer** | Basescan | Celoscan |
@@ -143,7 +143,7 @@ Upgradeability: UUPS proxy pattern
 
 ### Contract Testing ✅
 - [x] Contract deployed successfully
-- [x] Mint fee correctly set (1.0 CELO)
+- [x] Mint fee correctly set (10.0 CELO)
 - [x] Owner and treasury addresses verified
 - [x] Contract upgradeable via UUPS
 - [x] ERC721 and ERC2981 standards implemented
@@ -168,7 +168,7 @@ Upgradeability: UUPS proxy pattern
 ### Development (`.env`)
 ```bash
 NEXT_PUBLIC_CHAIN_ID="42220"
-NEXT_PUBLIC_CELO_MINT_PRICE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
 NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
 NEXT_PUBLIC_RPC_URL_CELO="https://forno.celo.org"
@@ -177,7 +177,7 @@ NEXT_PUBLIC_RPC_URL_CELO="https://forno.celo.org"
 ### Production (`.env.production`)
 ```bash
 NEXT_PUBLIC_CHAIN_ID="42220"
-NEXT_PUBLIC_CELO_MINT_PRICE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
 NEXT_PUBLIC_SITE_URL="https://www.zodiaccard.xyz"
 ```
@@ -229,9 +229,9 @@ npm run dev
   - Confirmation: ~5-10 seconds
 
 ### Cost Breakdown
-- **Mint Fee**: 1.0 CELO (to treasury)
+- **Mint Fee**: 10.0 CELO (to treasury)
 - **Gas Cost**: ~0.01-0.05 CELO
-- **Total**: ~1.01-1.05 CELO per mint
+- **Total**: ~1.01-10.05 CELO per mint
 
 ### User Experience
 - ✅ Single transaction (no approval needed)
