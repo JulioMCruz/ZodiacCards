@@ -1,7 +1,10 @@
 {
     "functions": {
       "pages/api/vercel/**/*.ts": {
-        "maxDuration": 60
+        "maxDuration": 300
+      },
+      "app/api/generate-image/route.ts": {
+        "maxDuration": 300
       }
     }
   }

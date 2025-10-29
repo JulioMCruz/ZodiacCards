@@ -34,20 +34,20 @@ export async function generateImage({
 
   try {
     const startTime = Date.now()
-    
+
     // Check content moderation first
     log(requestId, '🔍 Checking content moderation...')
     const moderation = await openai.moderations.create({
       input: prompt,
     })
-    
+
     const flagged = moderation.results[0].flagged
-    
+
     if (flagged) {
       log(requestId, '⚠️ Prompt flagged by moderation API')
       throw new Error('Prompt contains inappropriate content and was flagged by moderation API.')
     }
-    
+
     log(requestId, '✅ Content moderation passed')
     log(requestId, '🎨 Starting OpenAI image generation...')
 
