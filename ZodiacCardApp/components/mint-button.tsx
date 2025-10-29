@@ -387,7 +387,7 @@ export function MintButton({
   return (
     <div className="flex flex-col gap-4 w-full">
       {renderButton()}
-      
+
       {error && (
         <p className="mt-2 text-sm text-red-500">{error}</p>
       )}
@@ -396,6 +396,14 @@ export function MintButton({
         <p className="mt-2 text-sm text-muted-foreground text-center">
           Mint cost: {formatCELO(MINT_FEE)}
         </p>
+      )}
+
+      {address && !isMinted && (
+        <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
+            ⚠️ <strong>Important:</strong> You need at least <strong>{formatCELO(MINT_FEE)}</strong> in your wallet to mint (plus a small amount for gas fees)
+          </p>
+        </div>
       )}
 
       {/* Success actions */}
