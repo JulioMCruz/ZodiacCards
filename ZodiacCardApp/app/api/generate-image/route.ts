@@ -2,6 +2,9 @@
 import { NextResponse } from 'next/server'
 import { generateImage } from '@/services/image-generation'
 
+// Configure route timeout - 5 minutes (max allowed on Hobby plan)
+export const maxDuration = 300
+
 export async function POST(req: Request) {
   const requestId = Math.random().toString(36).substring(7)
   console.log(`[${requestId}] 🟢 API Route Started - ${new Date().toISOString()}`)

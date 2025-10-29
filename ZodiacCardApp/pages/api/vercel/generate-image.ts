@@ -1,6 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { generateImage } from '@/services/image-generation'
 
+// Configure route timeout - 5 minutes (max allowed on Hobby plan)
+export const config = {
+  maxDuration: 300,
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
