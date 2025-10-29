@@ -47,7 +47,9 @@ export function SelfVerifyButton({ onVerificationSuccess, disabled, variant = "v
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Zodiac Card",
         scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "zodiac-card-app",
         endpoint: `${process.env.NEXT_PUBLIC_SITE_URL}/api/verify-self`,
-        callbackUrl: typeof window !== 'undefined' ? window.location.href : '',
+        deeplinkCallback: process.env.NEXT_PUBLIC_SELF_DEEPLINK_CALLBACK ||
+          (typeof window !== 'undefined' ? window.location.href : ''),
+        // callbackUrl: typeof window !== 'undefined' ? window.location.href : '',
         logoBase64: process.env.NEXT_PUBLIC_SELF_LOGO_URL || "",
         userId: address,
         endpointType: "https", // HTTPS endpoint for verification
