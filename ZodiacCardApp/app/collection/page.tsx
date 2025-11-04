@@ -22,8 +22,11 @@ const BLOCKSCOUT_API_URL = TARGET_CHAIN_ID === 42220
   ? 'https://celo.blockscout.com/api'
   : 'https://alfajores.blockscout.com/api'
 
-// Pinata gateway configuration
-const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+// Pinata gateway configuration - ensure it has https:// protocol
+const PINATA_GATEWAY_RAW = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+const PINATA_GATEWAY = PINATA_GATEWAY_RAW.startsWith('http')
+  ? PINATA_GATEWAY_RAW
+  : `https://${PINATA_GATEWAY_RAW}`
 
 interface NFT {
   tokenId: string
