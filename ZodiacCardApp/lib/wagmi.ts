@@ -48,7 +48,7 @@ const chainConfig = {
 // Use the chain config for the target chain
 const configuredChain = chainConfig[targetChain.id]
 
-// Include all chains to allow switching from Farcaster's default Base network to Celo
+// Include all chains to allow switching from Farcaster default network to Celo
 // Include mainnet for ENS resolution
 export const config = createConfig({
   chains: [configuredChain, base, baseSepolia, mainnet],

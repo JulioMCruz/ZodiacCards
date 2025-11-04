@@ -101,13 +101,13 @@ export default function ResultPage() {
 
         const prompt = `Create a stunning digital artwork in an anime and cosmic art style featuring two main subjects: a mystical character and their spirit animal companion representing ${sign} of the ${zodiacType} zodiac.
 
-The first subject is an ethereal anime character with an otherworldly presence. They have flowing hair in shades of celestial blue and turquoise, adorned with constellation patterns of ${sign}. Their elegant robes shimmer with cosmic energy and feature intricate ${zodiacType} zodiac symbols woven into the fabric. Their eyes reflect the wisdom of the stars, and they hold a glowing Base blockchain symbol that pulses with ethereal energy.
+The first subject is an ethereal anime character with an otherworldly presence. They have flowing hair in shades of celestial blue and turquoise, adorned with constellation patterns of ${sign}. Their elegant robes shimmer with cosmic energy and feature intricate ${zodiacType} zodiac symbols woven into the fabric. Their eyes reflect the wisdom of the stars, and they hold a glowing blockchain mystical symbol that pulses with ethereal energy.
 
 The second subject is a majestic spirit animal that embodies the essence of ${sign}. This mystical creature radiates with stellar energy, its form partially composed of stardust and constellation lines. The animal's features blend traditional ${sign} symbolism with magical elements, creating a powerful guardian presence beside the character.
 
-Both figures are surrounded by a mesmerizing cosmic backdrop featuring swirling nebulae in deep purples and blues, with the Base blockchain symbol appearing as a constellation pattern among the stars. The composition creates a harmonious balance between the character, their spirit animal, and the technological elements of the blockchain, all unified by the mystical energy of ${sign}.
+Both figures are surrounded by a mesmerizing cosmic backdrop featuring swirling nebulae in deep purples and blues, with blockchain mystical constellation patterns appearing among the stars. The composition creates a harmonious balance between the character, their spirit animal, and celestial elements, all unified by the mystical energy of ${sign}.
 
-The artwork should maintain a perfect balance between anime aesthetics, zodiac mysticism, and blockchain symbolism, creating a captivating and meaningful representation of ${sign}'s spiritual energy in the digital age.`
+The artwork should maintain a perfect balance between anime aesthetics, zodiac mysticism, and blockchain cosmic symbolism, creating a captivating and meaningful representation of ${sign}'s spiritual energy in the digital age.`
 
         // console.log('🎨 Initiating image generation request with prompt length:', prompt.length)
         // console.log('📄 Prompt:', prompt)
