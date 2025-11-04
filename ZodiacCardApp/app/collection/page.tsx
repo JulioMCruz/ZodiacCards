@@ -344,11 +344,17 @@ export default function CollectionPage() {
                     tokenId={nft.tokenId}
                     name={nft.metadata?.name || `Zodiac Card #${nft.tokenId}`}
                     description={nft.metadata?.description}
-                    imageUrl={
-                      nft.metadata.image
-                        .replace('ipfs://', `${PINATA_GATEWAY}/ipfs/`)
-                        .replace('https://ipfs.io/ipfs/', `${PINATA_GATEWAY}/ipfs/`)
-                    }
+                    imageUrl={(() => {
+                      // Extract IPFS hash from the image URL
+                      const ipfsHash = nft.metadata.image
+                        .replace('ipfs://', '')
+                        .replace('https://gateway.pinata.cloud/ipfs/', '')
+                        .replace('https://ipfs.io/ipfs/', '')
+
+                      // Use our proxy endpoint that serves the image from our domain
+                      // This should work better with Farcaster embeds than IPFS gateways
+                      return `https://zodiaccard.xyz/api/nft-image/${ipfsHash}`
+                    })()}
                     attributes={nft.metadata?.attributes}
                     className="flex-1"
                   />
