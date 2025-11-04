@@ -9,6 +9,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Loader2, Sparkles, ExternalLink } from "lucide-react"
 import { zodiacNftAbi } from "@/lib/abis"
+import { NFTShareButton } from "@/components/nft-share-button"
 
 // Contract configuration
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS as `0x${string}`
@@ -277,11 +278,19 @@ export default function CollectionPage() {
                     )}
                   </div>
                 </CardContent>
-                <CardFooter className="p-4 pt-0">
+                <CardFooter className="p-4 pt-0 flex gap-2">
+                  <NFTShareButton
+                    tokenId={nft.tokenId}
+                    name={nft.metadata?.name || `Zodiac Card #${nft.tokenId}`}
+                    description={nft.metadata?.description}
+                    imageUrl={nft.metadata?.image?.replace('ipfs://', 'https://ipfs.io/ipfs/')}
+                    attributes={nft.metadata?.attributes}
+                    className="flex-1"
+                  />
                   <Button
                     onClick={() => handleViewOnBlockscout(nft.tokenId)}
                     variant="outline"
-                    className="w-full border-amber-300 text-amber-700 hover:bg-amber-50"
+                    className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50"
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     View on Blockscout
