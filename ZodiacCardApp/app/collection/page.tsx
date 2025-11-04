@@ -22,6 +22,9 @@ const BLOCKSCOUT_API_URL = TARGET_CHAIN_ID === 42220
   ? 'https://celo.blockscout.com/api'
   : 'https://alfajores.blockscout.com/api'
 
+// Pinata gateway configuration
+const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+
 interface NFT {
   tokenId: string
   tokenURI: string
@@ -139,7 +142,7 @@ export default function CollectionPage() {
                   // Fallback: try direct client-side fetch with Pinata gateway
                   console.log(`[Collection] 🔄 Trying client-side fallback for token ${tokenId}`)
                   const ipfsHash = tokenURI.replace('ipfs://', '')
-                  const fallbackUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
+                  const fallbackUrl = `${PINATA_GATEWAY}/ipfs/${ipfsHash}`
 
                   try {
                     const fallbackResponse = await fetch(fallbackUrl, { cache: 'force-cache' })
@@ -269,8 +272,8 @@ export default function CollectionPage() {
                       <Image
                         src={
                           nft.metadata.image
-                            .replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')
-                            .replace('https://ipfs.io/ipfs/', 'https://gateway.pinata.cloud/ipfs/')
+                            .replace('ipfs://', `${PINATA_GATEWAY}/ipfs/`)
+                            .replace('https://ipfs.io/ipfs/', `${PINATA_GATEWAY}/ipfs/`)
                         }
                         alt={nft.metadata.name || `NFT #${nft.tokenId}`}
                         fill
@@ -343,8 +346,8 @@ export default function CollectionPage() {
                     description={nft.metadata?.description}
                     imageUrl={
                       nft.metadata.image
-                        .replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')
-                        .replace('https://ipfs.io/ipfs/', 'https://gateway.pinata.cloud/ipfs/')
+                        .replace('ipfs://', `${PINATA_GATEWAY}/ipfs/`)
+                        .replace('https://ipfs.io/ipfs/', `${PINATA_GATEWAY}/ipfs/`)
                     }
                     attributes={nft.metadata?.attributes}
                     className="flex-1"
