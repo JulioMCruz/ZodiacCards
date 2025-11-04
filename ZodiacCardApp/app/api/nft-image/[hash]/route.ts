@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Pinata gateway configuration
-const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+// Pinata gateway configuration - ensure it has https:// protocol
+const PINATA_GATEWAY_RAW = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+const PINATA_GATEWAY = PINATA_GATEWAY_RAW.startsWith('http')
+  ? PINATA_GATEWAY_RAW
+  : `https://${PINATA_GATEWAY_RAW}`
 
 export async function GET(
   request: NextRequest,
