@@ -267,18 +267,34 @@ export default function CollectionPage() {
                   {nft.metadata?.image ? (
                     <div className="relative w-full aspect-square bg-gradient-to-br from-purple-100 to-amber-100">
                       <Image
-                        src={nft.metadata.image.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')}
+                        src={
+                          nft.metadata.image
+                            .replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')
+                            .replace('https://ipfs.io/ipfs/', 'https://gateway.pinata.cloud/ipfs/')
+                        }
                         alt={nft.metadata.name || `NFT #${nft.tokenId}`}
                         fill
                         className="object-cover"
                         loading="lazy"
                         unoptimized
                         onError={(e) => {
-                          console.error('Image failed to load:', nft.metadata?.image)
-                          // Try alternative gateway
+                          console.error('[Collection] Image failed to load:', nft.metadata?.image)
+                          // Try alternative gateways in order
                           const target = e.target as HTMLImageElement
-                          if (target.src.includes('pinata')) {
-                            target.src = nft.metadata?.image?.replace('ipfs://', 'https://ipfs.io/ipfs/') || ''
+                          const currentSrc = target.src
+
+                          if (currentSrc.includes('pinata')) {
+                            console.log('[Collection] Trying cloudflare gateway')
+                            const hash = nft.metadata?.image?.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '') || ''
+                            target.src = `https://cloudflare-ipfs.com/ipfs/${hash}`
+                          } else if (currentSrc.includes('cloudflare')) {
+                            console.log('[Collection] Trying dweb gateway')
+                            const hash = nft.metadata?.image?.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '') || ''
+                            target.src = `https://dweb.link/ipfs/${hash}`
+                          } else if (currentSrc.includes('dweb')) {
+                            console.log('[Collection] Trying ipfs.io gateway')
+                            const hash = nft.metadata?.image?.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '') || ''
+                            target.src = `https://ipfs.io/ipfs/${hash}`
                           }
                         }}
                       />
@@ -325,7 +341,11 @@ export default function CollectionPage() {
                     tokenId={nft.tokenId}
                     name={nft.metadata?.name || `Zodiac Card #${nft.tokenId}`}
                     description={nft.metadata?.description}
-                    imageUrl={nft.metadata?.image?.replace('ipfs://', 'https://ipfs.io/ipfs/')}
+                    imageUrl={
+                      nft.metadata?.image
+                        ?.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')
+                        .replace('https://ipfs.io/ipfs/', 'https://gateway.pinata.cloud/ipfs/')
+                    }
                     attributes={nft.metadata?.attributes}
                     className="flex-1"
                   />
