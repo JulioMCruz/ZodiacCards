@@ -83,12 +83,15 @@ export function NFTShareButton({
     if (isAuthenticated) {
       // In Farcaster app - use SDK with embeds
       try {
+        // Match the mint button pattern: [imageUrl, appUrl]
         const embeds: string[] = []
 
+        // Add S3 image URL if available
         if (shareImageUrl) {
           embeds.push(shareImageUrl)
         }
 
+        // Add app link
         embeds.push("https://zodiaccard.xyz")
 
         console.log('[Share] Sharing with embeds:', embeds)
