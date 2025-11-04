@@ -40,29 +40,39 @@ export function NFTShareButton({
       text += `\n\n${attributeText}`
     }
 
-    text += `\n\nCheck out ZodiacCards on Base 🌟`
+    text += `\n\nCheck Zodiac Cards 🌟`
+
+    // Use cloudflare gateway to avoid rate limiting
+    const shareImageUrl = imageUrl
+      ? imageUrl
+          .replace('https://gateway.pinata.cloud/ipfs/', 'https://cloudflare-ipfs.com/ipfs/')
+          .replace('https://ipfs.io/ipfs/', 'https://cloudflare-ipfs.com/ipfs/')
+      : undefined
+
+    console.log('[Share] Original image URL:', imageUrl)
+    console.log('[Share] Share image URL (cloudflare):', shareImageUrl)
 
     if (isAuthenticated) {
       // In Farcaster app - use SDK with embeds
       try {
         await sdk.actions.composeCast({
           text,
-          embeds: imageUrl ? [imageUrl, "https://zodiaccard.xyz"] : ["https://zodiaccard.xyz"],
+          embeds: shareImageUrl ? [shareImageUrl, "https://zodiaccard.xyz"] : ["https://zodiaccard.xyz"],
         })
       } catch (error) {
         console.error('Error sharing with SDK:', error)
         // Fallback to web URL with embeds in URL
         const encodedText = encodeURIComponent(text)
-        const embedsParam = imageUrl
-          ? `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+        const embedsParam = shareImageUrl
+          ? `&embeds[]=${encodeURIComponent(shareImageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
           : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
         window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
       }
     } else {
       // In browser - open Warpcast compose URL with embeds
       const encodedText = encodeURIComponent(text)
-      const embedsParam = imageUrl
-        ? `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+      const embedsParam = shareImageUrl
+        ? `&embeds[]=${encodeURIComponent(shareImageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
         : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
       window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
     }
