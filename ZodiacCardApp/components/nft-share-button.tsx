@@ -47,22 +47,40 @@ export function NFTShareButton({
 
     if (isAuthenticated) {
       // In Farcaster app - use SDK with embeds
-      // Note: Only pass the website URL as embed since IPFS images don't work reliably in Farcaster
       try {
+        // Build embeds array: image first (if available), then website link
+        const embeds: string[] = []
+
+        if (imageUrl) {
+          // Use the Pinata gateway URL directly
+          embeds.push(imageUrl)
+        }
+
+        // Add website link
+        embeds.push("https://zodiaccard.xyz")
+
+        console.log('[Share] Embeds being sent:', embeds)
+
         await sdk.actions.composeCast({
           text,
-          embeds: ["https://zodiaccard.xyz"],
+          embeds,
         })
       } catch (error) {
         console.error('Error sharing with SDK:', error)
         // Fallback to web URL
         const encodedText = encodeURIComponent(text)
-        window.open(`https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`, '_blank')
+        const embedsParam = imageUrl
+          ? `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+          : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+        window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
       }
     } else {
       // In browser - open Warpcast compose URL
       const encodedText = encodeURIComponent(text)
-      window.open(`https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`, '_blank')
+      const embedsParam = imageUrl
+        ? `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+        : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+      window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
     }
   }
 
