@@ -31,18 +31,19 @@ export function NFTShareButton({
 
   const handleShare = async () => {
     // Extract zodiac info from attributes
-    console.log('[Share] Available attributes:', attributes)
-
+    // Attribute names are "Zodiac Card" and "Zodiac Sign"
     const zodiacTypeAttr = attributes?.find(attr =>
+      attr.trait_type === 'Zodiac Card' ||
       attr.trait_type.toLowerCase() === 'zodiac type' ||
       attr.trait_type.toLowerCase() === 'zodiac'
     )
-    const signAttr = attributes?.find(attr => attr.trait_type.toLowerCase() === 'sign')
+    const signAttr = attributes?.find(attr =>
+      attr.trait_type === 'Zodiac Sign' ||
+      attr.trait_type.toLowerCase() === 'sign'
+    )
 
     const zodiacType = zodiacTypeAttr?.value || 'Unknown'
     const sign = signAttr?.value || 'Unknown'
-
-    console.log('[Share] Extracted - Zodiac:', zodiacType, 'Sign:', sign)
 
     // Build share text matching the mint button format
     let text = `Just sharing my Zodiac Card NFT! Check out my fortune ✨:\n\nZodiac: ${zodiacType.toUpperCase()}\nSign: ${sign}\n${description || ''}`
