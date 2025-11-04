@@ -342,9 +342,9 @@ export default function CollectionPage() {
                     name={nft.metadata?.name || `Zodiac Card #${nft.tokenId}`}
                     description={nft.metadata?.description}
                     imageUrl={
-                      nft.metadata?.image
-                        ? `https://ipfs.io/ipfs/${nft.metadata.image.replace('ipfs://', '').replace('https://gateway.pinata.cloud/ipfs/', '').replace('https://ipfs.io/ipfs/', '')}`
-                        : undefined
+                      nft.metadata.image
+                        .replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')
+                        .replace('https://ipfs.io/ipfs/', 'https://gateway.pinata.cloud/ipfs/')
                     }
                     attributes={nft.metadata?.attributes}
                     className="flex-1"
