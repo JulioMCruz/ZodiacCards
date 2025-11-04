@@ -343,8 +343,8 @@ export default function CollectionPage() {
                     description={nft.metadata?.description}
                     imageUrl={
                       nft.metadata?.image
-                        ?.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')
-                        .replace('https://ipfs.io/ipfs/', 'https://gateway.pinata.cloud/ipfs/')
+                        ? `https://ipfs.io/ipfs/${nft.metadata.image.replace('ipfs://', '').replace('https://gateway.pinata.cloud/ipfs/', '').replace('https://ipfs.io/ipfs/', '')}`
+                        : undefined
                     }
                     attributes={nft.metadata?.attributes}
                     className="flex-1"
