@@ -117,14 +117,42 @@ export default function CollectionPage() {
               // Get mint date from the map we built earlier
               const mintedDate = mintDatesMap[tokenId.toString()]
 
-              // Fetch metadata from IPFS
+              // Fetch metadata using server-side API for better logging and reliability
               let metadata
               try {
-                const metadataUrl = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/')
-                const response = await fetch(metadataUrl)
-                metadata = await response.json()
+                console.log(`[Collection] Fetching metadata for token ${tokenId}, URI:`, tokenURI)
+
+                const metadataResponse = await fetch('/api/fetch-nft-metadata', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ tokenURI })
+                })
+
+                if (metadataResponse.ok) {
+                  const data = await metadataResponse.json()
+                  metadata = data.metadata
+                  console.log(`[Collection] ✅ Metadata loaded for token ${tokenId} via gateway:`, data.gateway)
+                } else {
+                  const errorData = await metadataResponse.json().catch(() => ({}))
+                  console.error(`[Collection] ❌ Failed to fetch metadata for token ${tokenId}:`, errorData)
+
+                  // Fallback: try direct client-side fetch with Pinata gateway
+                  console.log(`[Collection] 🔄 Trying client-side fallback for token ${tokenId}`)
+                  const ipfsHash = tokenURI.replace('ipfs://', '')
+                  const fallbackUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
+
+                  try {
+                    const fallbackResponse = await fetch(fallbackUrl, { cache: 'force-cache' })
+                    if (fallbackResponse.ok) {
+                      metadata = await fallbackResponse.json()
+                      console.log(`[Collection] ✅ Fallback succeeded for token ${tokenId}`)
+                    }
+                  } catch (fallbackErr) {
+                    console.error(`[Collection] ❌ Fallback also failed for token ${tokenId}:`, fallbackErr)
+                  }
+                }
               } catch (err) {
-                console.error('Failed to fetch metadata:', err)
+                console.error(`[Collection] ❌ Unexpected error fetching metadata for token ${tokenId}:`, err)
               }
 
               return {
@@ -236,14 +264,28 @@ export default function CollectionPage() {
                 className="bg-[#F5E6C8] border-2 border-amber-700 rounded-xl overflow-hidden hover:shadow-xl transition-shadow"
               >
                 <CardContent className="p-0">
-                  {nft.metadata?.image && (
-                    <div className="relative w-full aspect-square">
+                  {nft.metadata?.image ? (
+                    <div className="relative w-full aspect-square bg-gradient-to-br from-purple-100 to-amber-100">
                       <Image
-                        src={nft.metadata.image.replace('ipfs://', 'https://ipfs.io/ipfs/')}
+                        src={nft.metadata.image.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')}
                         alt={nft.metadata.name || `NFT #${nft.tokenId}`}
                         fill
                         className="object-cover"
+                        loading="lazy"
+                        unoptimized
+                        onError={(e) => {
+                          console.error('Image failed to load:', nft.metadata?.image)
+                          // Try alternative gateway
+                          const target = e.target as HTMLImageElement
+                          if (target.src.includes('pinata')) {
+                            target.src = nft.metadata?.image?.replace('ipfs://', 'https://ipfs.io/ipfs/') || ''
+                          }
+                        }}
                       />
+                    </div>
+                  ) : (
+                    <div className="relative w-full aspect-square bg-gradient-to-br from-purple-200 to-amber-200 flex items-center justify-center">
+                      <Sparkles className="h-16 w-16 text-amber-600 opacity-50" />
                     </div>
                   )}
                   <div className="p-4 space-y-3">
