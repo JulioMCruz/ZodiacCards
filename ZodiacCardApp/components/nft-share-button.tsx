@@ -46,36 +46,25 @@ export function NFTShareButton({
     console.log('[Share] Text:', text)
 
     if (isAuthenticated) {
-      // In Farcaster app - use SDK with embeds (same pattern as mint button)
+      // In Farcaster app - use SDK with embeds
       try {
-        const embeds = []
-        if (imageUrl) {
-          embeds.push(imageUrl)
-        }
-        embeds.push("https://zodiaccard.xyz")
-
-        console.log('[Share] Embeds array:', embeds)
+        // Create a dedicated NFT page URL that will have OpenGraph metadata with the image
+        const nftPageUrl = `https://zodiaccard.xyz/nft/${tokenId}`
 
         await sdk.actions.composeCast({
           text,
-          embeds,
+          embeds: [nftPageUrl],
         })
       } catch (error) {
         console.error('Error sharing with SDK:', error)
-        // Fallback to web URL with embeds in URL
+        // Fallback to web URL
         const encodedText = encodeURIComponent(text)
-        const embedsParam = imageUrl
-          ? `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
-          : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
-        window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
+        window.open(`https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`, '_blank')
       }
     } else {
-      // In browser - open Warpcast compose URL with embeds
+      // In browser - open Warpcast compose URL
       const encodedText = encodeURIComponent(text)
-      const embedsParam = imageUrl
-        ? `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
-        : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
-      window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
+      window.open(`https://warpcast.com/~/compose?text=${encodedText}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`, '_blank')
     }
   }
 
