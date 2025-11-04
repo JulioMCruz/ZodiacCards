@@ -47,13 +47,11 @@ export function NFTShareButton({
 
     if (isAuthenticated) {
       // In Farcaster app - use SDK with embeds
+      // Note: Only pass the website URL as embed since IPFS images don't work reliably in Farcaster
       try {
-        // Create a dedicated NFT page URL that will have OpenGraph metadata with the image
-        const nftPageUrl = `https://zodiaccard.xyz/nft/${tokenId}`
-
         await sdk.actions.composeCast({
           text,
-          embeds: [nftPageUrl],
+          embeds: ["https://zodiaccard.xyz"],
         })
       } catch (error) {
         console.error('Error sharing with SDK:', error)
