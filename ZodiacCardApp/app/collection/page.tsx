@@ -7,9 +7,10 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
-import { Loader2, Sparkles, ExternalLink } from "lucide-react"
+import { Sparkles, ExternalLink } from "lucide-react"
 import { zodiacNftAbi } from "@/lib/abis"
 import { NFTShareButton } from "@/components/nft-share-button"
+import { CollectionLoading } from "@/components/collection-loading"
 
 // Contract configuration
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS as `0x${string}`
@@ -236,10 +237,7 @@ export default function CollectionPage() {
         </p>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center min-h-[40vh]">
-            <Loader2 className="h-12 w-12 text-violet-400 animate-spin mb-4" />
-            <p className="text-violet-200">Loading your collection...</p>
-          </div>
+          <CollectionLoading />
         ) : error ? (
           <Card className="w-full bg-white/10 backdrop-blur-md border-amber-300/20">
             <CardContent className="p-8 text-center">
