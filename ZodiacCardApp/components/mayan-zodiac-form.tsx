@@ -124,6 +124,7 @@ export function MayanZodiacForm() {
             value={day}
             onChange={(e) => setDay(e.target.value)}
             className="bg-amber-50 border-amber-200 text-gray-800 placeholder:text-amber-400"
+            autoComplete="off"
           />
         </div>
         <div className="space-y-2">
@@ -138,6 +139,7 @@ export function MayanZodiacForm() {
             value={month}
             onChange={(e) => setMonth(e.target.value)}
             className="bg-amber-50 border-amber-200 text-gray-800 placeholder:text-amber-400"
+            autoComplete="off"
           />
         </div>
         <div className="space-y-2">
@@ -152,6 +154,7 @@ export function MayanZodiacForm() {
             value={year}
             onChange={(e) => setYear(e.target.value)}
             className="bg-amber-50 border-amber-200 text-gray-800 placeholder:text-amber-400"
+            autoComplete="off"
           />
         </div>
       </div>

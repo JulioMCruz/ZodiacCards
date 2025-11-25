@@ -104,6 +104,7 @@ export function ChineseZodiacForm() {
           value={year}
           onChange={(e) => setYear(e.target.value)}
           className="bg-amber-50 border-amber-200 text-gray-800 placeholder:text-amber-400"
+          autoComplete="off"
         />
         <p className="text-xs text-gray-600">Your Chinese zodiac sign will be determined by your birth year</p>
       </div>
