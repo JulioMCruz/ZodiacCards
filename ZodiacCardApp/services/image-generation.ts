@@ -1,10 +1,10 @@
-import OpenAI from 'openai'
+import Replicate from 'replicate'
 
 // Types
 interface GenerateImageOptions {
   prompt: string
   requestId?: string
-  model?: 'dall-e-3' | 'dall-e-2'
+  model?: 'flux-pro' | 'flux-dev' | 'flux-schnell'
   size?: '1024x1024' | '1792x1024' | '1024x1792'
 }
 
@@ -13,9 +13,9 @@ interface GenerateImageResponse {
   duration: number
 }
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+// Initialize Replicate client
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
 })
 
 // Logger utility
@@ -27,44 +27,91 @@ function log(requestId: string, message: string, data?: any) {
 export async function generateImage({
   prompt,
   requestId = Math.random().toString(36).substring(7),
-  model = 'dall-e-3',
+  model = 'flux-pro',
   size = '1024x1024'
 }: GenerateImageOptions): Promise<GenerateImageResponse> {
   log(requestId, '🟢 Image Generation Started')
 
   try {
     const startTime = Date.now()
+    log(requestId, '🎨 Starting Replicate Flux image generation...')
 
-    // Check content moderation first
-    log(requestId, '🔍 Checking content moderation...')
-    const moderation = await openai.moderations.create({
-      input: prompt,
-    })
-
-    const flagged = moderation.results[0].flagged
-
-    if (flagged) {
-      log(requestId, '⚠️ Prompt flagged by moderation API')
-      throw new Error('Prompt contains inappropriate content and was flagged by moderation API.')
+    // Map size to aspect ratio for Flux
+    const aspectRatioMap: Record<string, string> = {
+      '1024x1024': '1:1',
+      '1792x1024': '16:9',
+      '1024x1792': '9:16'
     }
+    const aspectRatio = aspectRatioMap[size] || '1:1'
 
-    log(requestId, '✅ Content moderation passed')
-    log(requestId, '🎨 Starting OpenAI image generation...')
+    // Select model version - using specific versions for reliability
+    const modelVersions: Record<string, string> = {
+      'flux-pro': 'black-forest-labs/flux-1.1-pro',
+      'flux-dev': 'black-forest-labs/flux-dev',
+      'flux-schnell': 'black-forest-labs/flux-schnell'
+    }
+    const modelVersion = modelVersions[model] || modelVersions['flux-pro']
 
-    const response = await openai.images.generate({
-      model,
-      prompt,
-      n: 1,
-      size,
-    })
+    log(requestId, `Using model: ${modelVersion}, aspect ratio: ${aspectRatio}`)
+
+    // Run the model and wait for completion
+    const output = await replicate.run(
+      modelVersion as `${string}/${string}` | `${string}/${string}:${string}`,
+      {
+        input: {
+          prompt,
+          aspect_ratio: aspectRatio,
+          output_format: 'png',
+          output_quality: 100,
+          ...(model === 'flux-pro' && {
+            safety_tolerance: 2,
+            prompt_upsampling: true
+          })
+        }
+      }
+    )
 
     const duration = Date.now() - startTime
-    const imageUrl = response.data[0].url
 
-    if (!imageUrl) throw new Error('No image URL returned from OpenAI')
+    // Log the full output for debugging
+    console.log(`[${requestId}] Full Replicate output:`, JSON.stringify(output, null, 2))
+    log(requestId, `Raw output type: ${typeof output}, isArray: ${Array.isArray(output)}`)
 
-    log(requestId, `✅ OpenAI request completed in ${duration}ms`)
-    log(requestId, '🎉 Success - Image URL generated')
+    // Handle different output formats from Replicate
+    let imageUrl: string | null = null
+
+    // Flux models typically return a FileOutput object or array of FileOutput
+    if (Array.isArray(output) && output.length > 0) {
+      const firstItem = output[0]
+      // Check if it's a FileOutput object with url/toString
+      if (typeof firstItem === 'object' && firstItem !== null) {
+        imageUrl = (firstItem as any).url || (firstItem as any).toString?.() || String(firstItem)
+      } else if (typeof firstItem === 'string') {
+        imageUrl = firstItem
+      }
+      log(requestId, `Got array output, extracted: ${imageUrl}`)
+    } else if (typeof output === 'string') {
+      imageUrl = output
+      log(requestId, `Got string output: ${imageUrl}`)
+    } else if (output && typeof output === 'object') {
+      // Check for FileOutput object or URL property
+      const outputObj = output as any
+      if (typeof outputObj.toString === 'function' && outputObj.toString() !== '[object Object]') {
+        imageUrl = outputObj.toString()
+        log(requestId, `Got object with toString(): ${imageUrl}`)
+      } else {
+        imageUrl = outputObj.url || outputObj.image || outputObj.output || String(output)
+        log(requestId, `Got object output, extracted: ${imageUrl}`)
+      }
+    }
+
+    if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
+      console.error(`[${requestId}] Invalid output:`, JSON.stringify(output, null, 2))
+      throw new Error(`No valid image URL returned from Replicate. Output type: ${typeof output}`)
+    }
+
+    log(requestId, `✅ Replicate request completed in ${duration}ms`)
+    log(requestId, `🎉 Success - Image URL: ${imageUrl}`)
 
     return {
       imageUrl,
@@ -73,7 +120,7 @@ export async function generateImage({
   } catch (error: any) {
     const errorMessage = error?.message || 'Unknown error'
     const errorCode = error?.code || 'NO_CODE'
-    
+
     console.error(`[${requestId}] 🔴 Error generating image:`, {
       message: errorMessage,
       code: errorCode,
@@ -82,14 +129,6 @@ export async function generateImage({
       status: error?.status,
       prompt
     })
-    
-    if (error instanceof OpenAI.APIError) {
-      console.error(`[${requestId}] OpenAI API Error:`, {
-        status: error.status,
-        headers: error.headers,
-        error: error.error
-      })
-    }
 
     throw error
   } finally {
