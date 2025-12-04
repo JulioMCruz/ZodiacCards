@@ -10,6 +10,7 @@ import Link from "next/link"
 import { Sparkles, ExternalLink } from "lucide-react"
 import { zodiacNftAbi, zodiacImagePaymentV3Abi } from "@/lib/abis"
 import { NFTShareButton } from "@/components/nft-share-button"
+import { ShareButton } from "@/components/share-button"
 import { CollectionLoading } from "@/components/collection-loading"
 import { IMAGE_PAYMENT_CONTRACT_ADDRESS, IMAGE_PAYMENT_CONTRACT_ADDRESS_V2 } from "@/lib/constants"
 
@@ -53,6 +54,9 @@ interface GeneratedFortune {
   fortuneText: string
   imageUrl: string
   createdAt: string
+  username?: string
+  description?: string
+  metadataURI?: string
   type: 'generated'
 }
 
@@ -120,6 +124,9 @@ export default function CollectionPage() {
                   fortuneText: metadata.fortuneText || '',
                   imageUrl: metadata.imageUrl || '',
                   createdAt: new Date(Number(gen.createdAt) * 1000).toISOString(),
+                  username: metadata.username || metadata.name || '',
+                  description: metadata.description || '',
+                  metadataURI: gen.metadataURI,
                   type: 'generated'
                 })
               } catch (metadataError) {
@@ -173,6 +180,9 @@ export default function CollectionPage() {
                     fortuneText: metadata.fortuneText || '',
                     imageUrl: metadata.imageUrl || '',
                     createdAt: new Date(Number(gen.createdAt) * 1000).toISOString(),
+                    username: metadata.username || metadata.name || '',
+                    description: metadata.description || '',
+                    metadataURI: gen.metadataURI,
                     type: 'generated'
                   })
                 } catch (metadataError) {
@@ -505,7 +515,7 @@ export default function CollectionPage() {
                   <div className="p-4 space-y-3">
                     <h3 className="font-bold text-gray-800 mb-1">
                       {!isMinted
-                        ? `${item.zodiacType} - ${item.zodiacSign}`
+                        ? `Zodiac Card Fortune #${item.metadataURI ? item.metadataURI.replace('ipfs://', '').slice(0, 9).toUpperCase() : item.id}`
                         : (item.metadata?.name || `Zodiac Card #${item.tokenId}`)}
                     </h3>
 
@@ -537,24 +547,28 @@ export default function CollectionPage() {
                       </p>
                     )}
 
-                    {isMinted && item.metadata?.attributes && (
+                    {!isMinted ? (
+                      <div className="space-y-1 pt-2 border-t border-amber-200">
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Zodiac Card:</span> {item.zodiacType}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Zodiac Sign:</span> {item.zodiacSign}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Username:</span> {item.username || 'Anonymous'}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Collection:</span> Zodiac Card
+                        </p>
+                      </div>
+                    ) : item.metadata?.attributes && (
                       <div className="space-y-1 pt-2 border-t border-amber-200">
                         {item.metadata.attributes.map((attr, idx) => (
                           <p key={idx} className="text-sm text-gray-600">
                             <span className="font-medium">{attr.trait_type}:</span> {attr.value}
                           </p>
                         ))}
-                      </div>
-                    )}
-
-                    {!isMinted && (
-                      <div className="pt-2 border-t border-amber-200">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Type:</span> {item.zodiacType}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Sign:</span> {item.zodiacSign}
-                        </p>
                       </div>
                     )}
                   </div>
@@ -587,12 +601,17 @@ export default function CollectionPage() {
                     </>
                   ) : (
                     <>
-                      <Link href={`/nft/${item.id}`} className="flex-1">
-                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-amber-950">
-                          View Details
-                        </Button>
-                      </Link>
-                      <Link href={`/result?generationId=${item.id}`} className="flex-1">
+                      <ShareButton
+                        username={item.username || 'User'}
+                        sign={item.zodiacSign}
+                        fortune={item.fortuneText}
+                        imageUrl={item.imageUrl}
+                        className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50"
+                      />
+                      <Link
+                        href={`/mint/${item.id}?username=${encodeURIComponent(item.username || '')}&sign=${encodeURIComponent(item.zodiacSign)}&zodiacType=${encodeURIComponent(item.zodiacType)}`}
+                        className="flex-1"
+                      >
                         <Button variant="outline" className="w-full border-amber-300 text-amber-700 hover:bg-amber-50">
                           Mint as NFT
                         </Button>

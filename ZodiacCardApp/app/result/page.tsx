@@ -47,6 +47,7 @@ export default function ResultPage() {
   const [error, setError] = useState("")
   const [hasGeneratedFortune, setHasGeneratedFortune] = useState(false)
   const [generationId, setGenerationId] = useState<number | null>(null)
+  const [metadataURI, setMetadataURI] = useState<string | null>(null)
   const [isUploadingShare, setIsUploadingShare] = useState(false)
 
   // Payment is already done when arriving at this page
@@ -82,6 +83,8 @@ export default function ResultPage() {
           zodiacSign: sign,
           paymentTxHash: paymentHash,
           paymentAmount: IMAGE_FEE,
+          username: username || '',
+          description: `A unique Zodiac fortune for ${username || 'you'}.`,
         }),
       })
 
@@ -94,6 +97,9 @@ export default function ResultPage() {
 
       const ipfsUri = metadataData.ipfsUri
       console.log('✅ Metadata uploaded to IPFS:', ipfsUri)
+
+      // Store metadataURI in state for MintButton
+      setMetadataURI(ipfsUri)
 
       // 2. Extract paymentId from payment transaction receipt
       if (!publicClient) {
@@ -513,6 +519,7 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
             zodiacType={zodiacType}
             imageUrl={imageUrl || ""}
             paymentId={generationId || undefined}
+            metadataURI={metadataURI || undefined}
           />
 
           <Button

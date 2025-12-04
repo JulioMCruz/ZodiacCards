@@ -51,6 +51,7 @@ interface MintButtonProps {
   fortune: string
   username: string
   paymentId?: number
+  metadataURI?: string
   onSuccess?: (tokenId: string) => void
 }
 
@@ -82,6 +83,7 @@ export function MintButton({
   fortune,
   username,
   paymentId,
+  metadataURI,
   onSuccess
 }: MintButtonProps) {
   const { address } = useAccount()
@@ -149,17 +151,43 @@ export function MintButton({
 
       // No approval needed for native CELO payment
 
-      // Upload to IPFS
+      // Always upload image to IPFS and create proper NFT metadata
       setMintStep('uploading')
-      const { ipfsUrl: imageIpfsUrlUploaded } = await uploadToIPFS(imageUrl)
+      let metadataIpfsUrl: string
+      let imageSourceUrl = imageUrl
+
+      // If metadataURI is provided, fetch the generation metadata to get the S3 image URL
+      if (metadataURI) {
+        console.log('📦 Fetching generation metadata from payment contract:', metadataURI)
+        try {
+          const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+          const metadataUrl = metadataURI.replace('ipfs://', `${PINATA_GATEWAY}/ipfs/`)
+          const response = await fetch(metadataUrl)
+          const generationMetadata = await response.json()
+
+          console.log('📦 Generation metadata loaded:', generationMetadata)
+          // Use the S3 image URL from generation metadata
+          imageSourceUrl = generationMetadata.imageUrl || imageUrl
+          console.log('🖼️ Using image URL from generation:', imageSourceUrl)
+        } catch (err) {
+          console.error('Error fetching generation metadata:', err)
+          // Continue with provided imageUrl as fallback
+        }
+      }
+
+      // Step 1: Upload image to IPFS (from S3 URL or direct URL)
+      console.log('📤 Uploading image to IPFS from:', imageSourceUrl)
+      const { ipfsUrl: imageIpfsUrlUploaded } = await uploadToIPFS(imageSourceUrl)
       if (!imageIpfsUrlUploaded) {
         setError('Failed to upload image to IPFS')
         setMintStep('initial')
         return
       }
       setImageIpfsUrl(imageIpfsUrlUploaded)
+      console.log('✅ Image uploaded to IPFS:', imageIpfsUrlUploaded)
 
-      const metadata = {
+      // Step 2: Create proper NFT metadata with IPFS image
+      const nftMetadata = {
         name: `Zodiac Card Fortune #${Date.now()}`,
         description: `A unique Zodiac fortune for ${username}. ${fortune}`,
         image: `https://ipfs.io/ipfs/${imageIpfsUrlUploaded.replace('ipfs://', '')}`,
@@ -172,12 +200,17 @@ export function MintButton({
         ]
       }
 
-      const { ipfsUrl: metadataIpfsUrl } = await uploadToIPFS(JSON.stringify(metadata), true)
-      if (!metadataIpfsUrl) {
-        setError('Failed to upload metadata to IPFS')
+      // Step 3: Upload NFT metadata to IPFS
+      console.log('📤 Uploading NFT metadata to IPFS')
+      console.log('📋 NFT Metadata format:', JSON.stringify(nftMetadata, null, 2))
+      const { ipfsUrl: uploadedMetadataUrl } = await uploadToIPFS(JSON.stringify(nftMetadata), true)
+      if (!uploadedMetadataUrl) {
+        setError('Failed to upload NFT metadata to IPFS')
         setMintStep('initial')
         return
       }
+      metadataIpfsUrl = uploadedMetadataUrl
+      console.log('✅ NFT metadata uploaded to IPFS:', metadataIpfsUrl)
 
       // Mint NFT with native CELO payment
       setMintStep('minting')

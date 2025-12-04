@@ -15,6 +15,8 @@ interface UploadMetadataRequest {
   zodiacSign: string
   paymentTxHash: string
   paymentAmount: string
+  username?: string
+  description?: string
 }
 
 export async function POST(req: Request) {
@@ -27,6 +29,8 @@ export async function POST(req: Request) {
       zodiacSign,
       paymentTxHash,
       paymentAmount,
+      username,
+      description,
     } = body
 
     // Validate required fields
@@ -45,6 +49,8 @@ export async function POST(req: Request) {
       zodiacSign,
       paymentTxHash,
       paymentAmount,
+      username: username || '',
+      description: description || '',
       generatedAt: new Date().toISOString(),
     }
 
