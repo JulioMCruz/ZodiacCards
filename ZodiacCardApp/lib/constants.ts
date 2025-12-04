@@ -2,6 +2,7 @@
 export const IMAGE_PAYMENT_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS as `0x${string}`
 export const IMAGE_PAYMENT_CONTRACT_ADDRESS_V2 = process.env.NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS_V2 as `0x${string}` | undefined
 export const NFT_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as `0x${string}`
+export const NFT_CONTRACT_ADDRESS_V2 = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS_V2 as `0x${string}` | undefined
 
 // Payment fees (in CELO, 18 decimals)
 export const IMAGE_FEE = process.env.NEXT_PUBLIC_IMAGE_FEE || "2.0"

@@ -225,12 +225,24 @@ export function MintButton({
           hasTag: !!referralTag
         })
 
+        // Use mintFromImagePayment if we have a paymentId, otherwise use basic mint
+        const useMintFromImagePayment = paymentId !== undefined && paymentId > 0
+
+        console.log('🔧 Mint function selection:', {
+          function: useMintFromImagePayment ? 'mintFromImagePayment' : 'mint',
+          paymentId,
+          address,
+          metadataURI: metadataIpfsUrl
+        })
+
         const mintHash = await writeContract({
           address: CONTRACT_ADDRESS,
           abi: zodiacNftAbi,
-          functionName: 'mint',
-          args: [address, metadataIpfsUrl],
-          value: MINT_FEE, // Send CELO with the transaction
+          functionName: useMintFromImagePayment ? 'mintFromImagePayment' : 'mint',
+          args: useMintFromImagePayment
+            ? [address, metadataIpfsUrl, paymentId]
+            : [address, metadataIpfsUrl],
+          value: MINT_FEE, // Send 2 CELO with the transaction
           dataSuffix: referralTag ? `0x${referralTag}` : undefined, // Add Divvi referral tag
         })
 

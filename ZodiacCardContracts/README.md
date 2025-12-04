@@ -1,396 +1,353 @@
-# 🏗 Scaffold-ETH 2
+# 🔮 Zodiac Cards - Smart Contracts
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+> UUPS upgradeable NFT contracts with payment tracking on Celo Mainnet
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## 📜 Contract Evolution
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+### 🆕 V3 Contracts (Current - Active)
+**Deployed**: December 3, 2025
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+#### NFT Contract V3
+- **Proxy Address**: `0x3ff2E08339588c594E6155Fd088f9668b2E7c775`
+- **Implementation**: `0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b`
+- **Features**: Clean state, dual mint functions, 2.0 CELO mint fee
+- **Status**: ✅ Active - All new mints use this contract
+- **Key Functions**:
+  - `mint(address to, string metadataURI)` - Basic minting
+  - `mintFromImagePayment(address to, string metadataURI, uint256 imagePaymentId)` - Minting with payment tracking
+  - `nextTokenId()` - Returns next token ID
+  - `tokenURI(uint256 tokenId)` - Returns metadata URI
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+#### Payment Contract V3
+- **Address**: `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3`
+- **Features**: Gas-free metadata storage, NFT tracking, 2.0 CELO image generation fee
+- **Status**: ✅ Active - All new payments use this contract
+- **Key Functions**:
+  - `createImagePayment()` - Pay 2.0 CELO for image generation
+  - `storeGenerationMetadata(uint256 paymentId, string metadataURI)` - Store fortune metadata
+  - `markAsMinted(uint256 paymentId, uint256 tokenId)` - Link payment to minted NFT
+  - `getUserCollection(address user)` - Get user's fortunes and NFTs
 
-## Requirements
+### 📦 V2 Contracts (Legacy - Read-Only)
+**Deployed**: October-November 2025
 
-Before you begin, you need to install the following tools:
+#### NFT Contract V2
+- **Proxy Address**: `0x415Df58904f56A159748476610B8830db2548158`
+- **Features**: First UUPS implementation, 10.0 CELO mint fee
+- **Status**: 🔒 Read-Only - Corrupted state (stuck `_nextTokenId`), supports viewing historical NFTs only
+- **Issue**: Storage state corruption prevents new mints
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+#### Payment Contract V2
+- **Address**: `0x52e4212bd4085296168A7f880DfB6B646d52Fe61`
+- **Features**: Image payment tracking, 2.0 CELO fee
+- **Status**: 🔒 Read-Only - Legacy payments viewable
 
-## Quickstart
+### 🌱 V1 Contracts (Original)
+**Deployed**: October 2025
 
-To get started with Scaffold-ETH 2, follow the steps below:
+#### NFT Contract V1
+- **Address**: [To be documented]
+- **Features**: Original implementation, basic minting
+- **Status**: 🔒 Historical - Legacy NFTs viewable in collection
+- **Project Launch**: October 23, 2025 (Initial framework on Celo Mainnet)
 
-1. Install dependencies if it was skipped in CLI:
+## 🔄 Contract Version Comparison
+
+| Version | Type | Address | Mint Fee | Status | Notes |
+|---------|------|---------|----------|--------|-------|
+| **V3** | NFT Proxy | `0x3ff2E08339588c594E6155Fd088f9668b2E7c775` | 2.0 CELO | ✅ Active | Clean state, dual mint functions |
+| **V3** | NFT Implementation | `0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b` | - | ✅ Active | UUPS upgradeable |
+| **V3** | Payment | `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3` | 2.0 CELO | ✅ Active | Gas-free storage |
+| **V2** | NFT Proxy | `0x415Df58904f56A159748476610B8830db2548158` | 10.0 CELO | 🔒 Read-Only | Corrupted state |
+| **V2** | Payment | `0x52e4212bd4085296168A7f880DfB6B646d52Fe61` | 2.0 CELO | 🔒 Read-Only | Legacy payments |
+| **V1** | NFT | [TBD] | [TBD] | 🔒 Historical | Original contract |
+
+## 🏗️ Architecture
+
+Built on Scaffold-ETH 2 framework with Hardhat for smart contract development and deployment.
+
+**Tech Stack**:
+- **Hardhat**: Ethereum development environment
+- **OpenZeppelin**: Upgradeable contracts (UUPS pattern)
+- **Solidity**: Smart contract language
+- **TypeScript**: Type-safe deployment scripts
+- **Celo Network**: Mainnet deployment (Chain ID: 42220)
+
+## 📁 Project Structure
 
 ```
-cd my-dapp-example
+ZodiacCardContracts/
+├── packages/
+│   └── hardhat/
+│       ├── contracts/                   # Smart contracts
+│       │   ├── ZodiacNFT.sol           # V1 NFT contract
+│       │   ├── ZodiacNFT_V2.sol        # V2/V3 NFT contract (UUPS)
+│       │   └── PaymentContract.sol     # V2/V3 Payment contract
+│       ├── scripts/                     # Deployment scripts
+│       │   ├── deploy-zodiac-nft-v3.ts # V3 deployment script
+│       │   └── verify-contract.ts      # Contract verification
+│       ├── deploy/                      # Auto-deploy scripts
+│       ├── test/                        # Contract tests
+│       └── hardhat.config.ts            # Hardhat configuration
+└── README.md
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (>= v20.18.3)
+- [Yarn](https://classic.yarnpkg.com/en/docs/install/) (v1 or v2+)
+- [Git](https://git-scm.com/downloads)
+- Celo wallet with CELO for deployment
+
+### Installation
+
+1. **Clone the repository** (if not already done):
+```bash
+git clone https://github.com/JulioMCruz/ZodiacCards.git
+cd ZodiacCards/ZodiacCardContracts
+```
+
+2. **Install dependencies**:
+```bash
 yarn install
 ```
 
-2. Run a local network in the first terminal:
+3. **Set up environment variables**:
+Create a `.env` file in the `packages/hardhat/` directory:
+```bash
+# Private key for deployment
+PRIVATE_KEY=your-private-key-here
 
+# Treasury and owner addresses
+TREASURY_ADDRESS=0xYourTreasuryAddress
+OWNER_ADDRESS=0xYourOwnerAddress
+
+# Celo RPC URLs
+CELO_RPC_URL=https://forno.celo.org
+CELO_SEPOLIA_RPC_URL=https://alfajores-forno.celo-testnet.org
+
+# Celoscan API Key (for contract verification)
+CELOSCAN_API_KEY=your-celoscan-api-key
 ```
+
+## 🔧 Development
+
+### Local Testing
+
+1. **Start local Hardhat network**:
+```bash
 yarn chain
 ```
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
-
-3. On a second terminal, deploy the test contract:
-
-```
+2. **Deploy contracts locally**:
+```bash
 yarn deploy
 ```
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
-yarn start
+3. **Run tests**:
+```bash
+yarn hardhat:test
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+### Celo Mainnet Deployment
 
-Run smart contract test with `yarn hardhat:test`
+#### Deploy V3 NFT Contract
 
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
+```bash
+# Navigate to hardhat directory
+cd packages/hardhat
 
-## 🚀 Setup The Graph Integration
-
-Now that we have spun up our blockchain, started our frontend application and deployed our smart contract, we can start setting up our subgraph and utilize The Graph!
-
-> Before following these steps be sure Docker is running!
-
-#### ✅ Step 1: Clean up any old data and spin up our docker containers ✅
-
-First run the following to clean up any old data. Do this if you need to reset everything.
-
-```
-yarn subgraph:clean-node
+# Run V3 deployment script
+npx hardhat run scripts/deploy-zodiac-nft-v3.ts --network celo
 ```
 
-> We can now spin up a graph node by running the following command… 🧑‍🚀
-
+**Expected Output**:
 ```
-yarn subgraph:run-node
-```
+🚀 Deploying Fresh ZodiacNFT V3 Contract...
+⏳ Deploying proxy and implementation...
 
-This will spin up all the containers for The Graph using docker-compose. You will want to keep this window open at all times so that you can see log output from Docker.
-
-> As stated before, be sure to keep this window open so that you can see any log output from Docker. 🔎
-
-> NOTE FOR LINUX USERS: If you are running Linux you will need some additional changes to the project.
-
-##### Linux Only
-
-**For hardhat**
-
-Update your package.json in packages/hardhat with the following command line option for the hardhat chain.
-
-```
-"chain": "hardhat node --network hardhat --no-deploy --hostname 0.0.0.0"
+✅ Deployment successful!
+📍 Proxy Address: 0x3ff2E08339588c594E6155Fd088f9668b2E7c775
+📍 Implementation Address: 0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b
 ```
 
-**For foundry**
+#### Verify Contracts on Celoscan
 
-Update your package.json in packages/foundry with the following command line option for the anvil chain.
+```bash
+# Verify proxy contract
+npx hardhat verify --network celo 0x3ff2E08339588c594E6155Fd088f9668b2E7c775
 
-```
-"chain": "anvil --host 0.0.0.0 --config-out localhost.json",
-```
-
-Save the file and then restart your chain in its original window.
-
-```
-yarn chain
+# Verify implementation contract
+npx hardhat verify --network celo 0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b
 ```
 
-Redeploy your smart contracts.
+## 📝 Smart Contract Details
 
-```
-yarn deploy
-```
+### ZodiacNFT_V2.sol (V3 Active Contract)
 
-You might also need to add a firewall exception for port 8432. As an example for Ubuntu... run the following command.
+**Key Features**:
+- UUPS upgradeable pattern
+- ERC721 compliant NFT
+- Two minting functions for flexibility
+- Payment tracking integration
+- Event emission for indexing
 
-```
-sudo ufw allow 8545/tcp
-```
-
-#### ✅ Step 2: Create and ship our subgraph ✅
-
-Now we can open up a fifth window to finish setting up The Graph. 😅 In this fifth window we will create our local subgraph!
-
-> Note: You will only need to do this once.
-
-```
-yarn subgraph:create-local
+**State Variables**:
+```solidity
+uint256 private _nextTokenId;        // Auto-incrementing token ID
+uint256 public mintFee;              // Fee to mint (2.0 CELO)
+address public treasury;             // Treasury for fee collection
 ```
 
-> You should see some output stating your subgraph has been created along with a log output on your graph-node inside docker.
+**Main Functions**:
 
-Next we will ship our subgraph! You will need to give your subgraph a version after executing this command. (e.g. 0.0.1).
+**`mint(address to, string memory metadataURI)`**
+- Basic minting function
+- Requires `mintFee` payment (2.0 CELO)
+- Emits `NFTMinted` event
+- Returns new token ID
 
-```
-yarn subgraph:local-ship
-```
+**`mintFromImagePayment(address to, string memory metadataURI, uint256 imagePaymentId)`**
+- Enhanced minting with payment tracking
+- Links NFT to image payment ID
+- Requires `mintFee` payment (2.0 CELO)
+- Emits `NFTMinted` event with payment ID
+- Returns new token ID
 
-> This command does the following all in one… 🚀🚀🚀
+**`nextTokenId()`**
+- View function to get next token ID
+- Useful for frontend coordination
 
--   Copies the contracts ABI from the hardhat/deployments folder
--   Generates the networks.json file
--   Generates AssemblyScript types from the subgraph schema and the contract ABIs.
--   Compiles and checks the mapping functions.
--   … and deploy a local subgraph!
-
-> If you get an error ts-node you can install it with the following command
-
-```
-npm install -g ts-node
-```
-
-You should get a build completed output along with the address of your Subgraph endpoint.
-
-```
-Build completed: QmYdGWsVSUYTd1dJnqn84kJkDggc2GD9RZWK5xLVEMB9iP
-
-Deployed to http://localhost:8000/subgraphs/name/scaffold-eth/your-contract/graphql
-
-Subgraph endpoints:
-Queries (HTTP):     http://localhost:8000/subgraphs/name/scaffold-eth/your-contract
+**Events**:
+```solidity
+event NFTMinted(
+    address indexed to,
+    uint256 indexed tokenId,
+    string uri,
+    uint8 source,
+    uint256 imagePaymentId
+);
 ```
 
-#### ✅ Step 3: Test your Subgraph ✅
+### PaymentContract.sol (V3 Active Contract)
 
-Go ahead and head over to your subgraph endpoint and take a look!
+**Key Features**:
+- Image generation payment tracking
+- Gas-free metadata storage
+- NFT minting coordination
+- User collection management
 
-> Here is an example query…
+**Main Functions**:
 
-```
-  {
-    greetings(first: 25, orderBy: createdAt, orderDirection: desc) {
-      id
-      greeting
-      premium
-      value
-      createdAt
-      sender {
-        address
-        greetingCount
-      }
-    }
-  }
-```
+**`createImagePayment()`**
+- Pay 2.0 CELO for image generation
+- Returns payment ID
+- Emits `PaymentCreated` event
 
-> If all is well and you’ve sent a transaction to your smart contract then you will see a similar data output!
+**`storeGenerationMetadata(uint256 paymentId, string metadataURI)`**
+- Store fortune metadata on-chain (gas-free)
+- Links metadata to payment ID
+- Emits `MetadataStored` event
 
-#### ✅ Step 4: Create Graph Client Artifacts ✅
+**`markAsMinted(uint256 paymentId, uint256 tokenId)`**
+- Mark payment as minted
+- Links payment to NFT token ID
+- Emits `MarkedAsMinted` event
 
-The Graph Client is a tool used to query GraphQL based applications and contains a lot of advanced features, such as client side composition or automatic pagination. A complete list of features and goals of this project can be found [here].(https://github.com/graphprotocol/graph-client?tab=readme-ov-file#features-and-goals)
+**`getUserCollection(address user)`**
+- Returns array of user's payments
+- Includes both minted and unminted fortunes
 
-In order to utilize Graph-Client in our application, we need to build the artifacts needed for our frontend. To do this simply run...
+## 🔍 Contract Verification
 
-```
-yarn graphclient:build
-```
+All deployed contracts are verified on [Celoscan](https://celoscan.io):
 
-After doing so, navigate to http://localhost:3000/subgraph and you should be able to see the GraphQL rendered in your application. If you don't see anything, make sure you've triggered an event in your smart contract.
+**V3 Contracts** (Active):
+- [NFT Proxy](https://celoscan.io/address/0x3ff2E08339588c594E6155Fd088f9668b2E7c775)
+- [NFT Implementation](https://celoscan.io/address/0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b)
+- [Payment Contract](https://celoscan.io/address/0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3)
 
-If you want to look at the query code for this, it can be found the component located in the subgraph folder `packages/nextjs/app/subgraph/_components/GreetingsTable.tsx`
+**V2 Contracts** (Legacy):
+- [NFT Proxy](https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158)
+- [Payment Contract](https://celoscan.io/address/0x52e4212bd4085296168A7f880DfB6B646d52Fe61)
 
+## ⚡ Key Improvements from V2 to V3
 
+1. **Clean Storage State**: V3 deployed with fresh state, fixing V2's stuck `_nextTokenId` issue
+2. **Lower Mint Fee**: Reduced from 10.0 CELO (V2) to 2.0 CELO (V3)
+3. **Dual Mint Functions**: Support for both basic and payment-tracked minting
+4. **Better Event Emission**: Enhanced `NFTMinted` event with payment tracking
+5. **Gas Optimization**: Improved contract efficiency
 
-#### ✅ Side Quest: Run a Matchstick Test ✅
+## 🧪 Testing
 
-Matchstick is a [unit testing framework](https://thegraph.com/docs/en/developing/unit-testing-framework/), developed by [LimeChain](https://limechain.tech/), that enables subgraph developers to test their mapping logic in a sandboxed environment and deploy their subgraphs with confidence!
+```bash
+# Run all tests
+yarn hardhat:test
 
-The project comes with a pre-written test located in `packages/subgraph/tests/asserts.test.ts`
+# Run specific test file
+yarn hardhat test test/ZodiacNFT.test.ts
 
-To test simply type....
-
-```
-yarn subgraph:test
-```
-
-> This will run `graph test` and automatically download the needed files for testing.
-
-You should receive the following output.
-
-```
-Fetching latest version tag...
-Downloading release from https://github.com/LimeChain/matchstick/releases/download/0.6.0/binary-macos-11-m1
-binary-macos-11-m1 has been installed!
-
-Compiling...
-
-💬 Compiling asserts...
-
-Igniting tests 🔥
-
-asserts
---------------------------------------------------
-  Asserts:
-    √ Greeting and Sender entities - 0.102ms
-
-All 1 tests passed! 😎
-
-[Thu, 07 Mar 2024 15:10:26 -0800] Program executed in: 1.838s.
+# Run with gas reporting
+REPORT_GAS=true yarn hardhat:test
 ```
 
-> NOTE: If you get an error, you may trying passing `-d` flag `yarn subgraph:test -d`. This will run matchstick in docker container.
+## 🔐 Security
 
-## Shipping to Subgraph Studio 🚀
+- ✅ UUPS upgradeable pattern with access control
+- ✅ Reentrancy guards on payment functions
+- ✅ Proper event emission for transparency
+- ✅ Verified contracts on Celoscan
+- ✅ Private keys never committed (`.gitignore` protection)
+- ✅ Environment variables for sensitive data
 
-> NOTE: This step requires [deployment of contract](https://docs.scaffoldeth.io/deploying/deploy-smart-contracts) to live network. Checkout list of [supported networks](https://thegraph.com/docs/networks).
+## 🛠️ Troubleshooting
 
-1. Update the `packages/subgraph/subgraph.yaml` file with your contract address, network name, start block number(optional) :
-   ```diff
-   ...
-   -     network: localhost
-   +     network: sepolia
-         source:
-           abi: YourContract
-   +       address: "0x54FE7f8Db97e102D3b7d86cc34D885B735E31E8e"
-   +       startBlock: 5889410
-   ...
-   ```
-  TIP: For `startBlock` you can use block number of your deployed contract, which can be found by visiting deployed transaction hash in blockexplorer.
+### Common Issues
 
-2. Create a new subgraph on [Subgraph Studio](https://thegraph.com/studio) and get "SUBGRAPH SLUG" and "DEPLOY KEY".
+**"Multiple artifacts for contract ZodiacNFT"**
+- Use fully qualified name: `contracts/ZodiacNFT_V2.sol:ZodiacNFT`
 
-3. Authenticate with the graph CLI:
-   ```sh
-   yarn graph auth --studio <DEPLOY KEY>
-   ```
+**"Transaction failed: insufficient funds"**
+- Ensure wallet has enough CELO for deployment gas fees
+- Check CELO balance on [Celoscan](https://celoscan.io)
 
-4. Deploy the subgraph to TheGraph Studio:
-   ```sh
-   yarn graph deploy --studio <SUBGRAPH SLUG>
-   ```
-   Once deployed, the CLI should output the Subgraph endpoints. Copy the HTTP endpoint and test your queries.
+**"Network not supported"**
+- Verify `hardhat.config.ts` has correct Celo network configuration
+- Check RPC URL is accessible
 
-5. Update `packages/nextjs/components/ScaffoldEthAppWithProviders.tsx` to use the above HTTP subgraph endpoint:
-   ```diff
-   - const subgraphUri = "http://localhost:8000/subgraphs/name/scaffold-eth/your-contract";
-   + const subgraphUri = 'YOUR_SUBGRAPH_ENDPOINT';
-   ```
+**"Contract verification failed"**
+- Ensure CELOSCAN_API_KEY is set in `.env`
+- Wait 30 seconds after deployment before verifying
+- Check that constructor parameters match deployment
 
-## A list of all available root commands
+## 📚 Resources
 
-### graph
+- **Main README**: [Project Overview](/README.md)
+- **Frontend README**: [ZodiacCardApp Documentation](/ZodiacCardApp/README.md)
+- **Celo Documentation**: [docs.celo.org](https://docs.celo.org)
+- **OpenZeppelin Upgrades**: [docs.openzeppelin.com/upgrades](https://docs.openzeppelin.com/upgrades-plugins/1.x/)
+- **Hardhat Documentation**: [hardhat.org/docs](https://hardhat.org/docs)
 
-```sh
-yarn graph
-```
+## 🤝 Contributing
 
-Shortcut to run `@graphprotocol/graph-cli` scoped to the subgraph package.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### run-node
+## 📄 License
 
-```sh
-yarn subgraph:run-node
-```
+MIT License - see [LICENSE](../LICENSE) file for details
 
-Spin up a local graph node (requires Docker).
+## 💬 Support
 
-### stop-node
+- Open an issue on [GitHub](https://github.com/JulioMCruz/ZodiacCards/issues)
+- Follow us on Twitter [@ZodiacCardNFT](https://twitter.com/ZodiacCardNFT)
 
-```sh
-yarn subgraph:stop-node
-```
+---
 
-Stop the local graph node.
-
-### clean-node
-
-```sh
-yarn clean-node
-```
-
-Remove the data from the local graph node.
-
-### local-create
-
-```sh
-yarn subgraph:create-local
-```
-
-Create your local subgraph (only required once).
-
-### local-remove
-
-```sh
-yarn subgraph:remove-local
-```
-
-Delete a local subgprah.
-
-### abi-copy
-
-```sh
-yarn subgraph:abi-copy
-```
-
-Copy the contracts ABI from the hardhat/deployments folder. Generates the networks.json file too.
-
-### codegen
-
-```sh
-yarn subgraph:codegen
-```
-
-Generates AssemblyScript types from the subgraph schema and the contract ABIs.
-
-### build
-
-```sh
-yarn subgraph:build
-```
-
-Compile and check the mapping functions.
-
-### local-deploy
-
-```sh
-yarn subgraph:deploy-local
-```
-
-Deploy a local subgraph.
-
-### local-ship
-
-```sh
-yarn subgraph:local-ship
-```
-
-Run all the required commands to deploy a local subgraph (abi-copy, codegen, build and local-deploy).
-
-### deploy
-
-```sh
-yarn subgraph:deploy
-```
-
-Deploy a subgraph to The Graph Network.
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+Built with ❤️ using [Scaffold-ETH 2](https://scaffoldeth.io) on [Celo](https://celo.org)
