@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
         <meta property="fc:frame:post_url" content="${baseUrl}/api/frame" />
       </head>
       <body>
-        <p>This is a Farcaster Frame. View it on Warpcast or another Farcaster client.</p>
+        <p>This is a Farcaster Frame. View it on Farcaster or another Farcaster client.</p>
       </body>
     </html>
   `

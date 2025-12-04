@@ -333,7 +333,7 @@ export function MintButton({
     }
   }
 
-  const handleShareWarpcast = async () => {
+  const handleShareFarcaster = async () => {
     if (!tokenId) return
 
     if (isAuthenticated) {
@@ -353,7 +353,7 @@ export function MintButton({
         window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
       }
     } else {
-      // In browser - open Warpcast compose URL with embeds
+      // In browser - open Farcaster compose URL with embeds
       const text = `Just minted my Zodiac Card NFT! Check out my fortune ✨:\n\nZodiac: ${zodiacType.toUpperCase()}\nSign: ${zodiacSign}\n${fortune}\n\nView on Blockscout: ${NFT_EXPLORER_URL}/${tokenId}`
       const encodedText = encodeURIComponent(text)
       const embedsParam = `&embeds[]=${encodeURIComponent(imageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
@@ -494,13 +494,13 @@ export function MintButton({
             View on {NFT_EXPLORER_NAME}
           </Button>
           <Button
-            onClick={handleShareWarpcast}
+            onClick={handleShareFarcaster}
             variant="outline"
             className="flex-1"
           >
             <Image
               src="/farcaster.png"
-              alt="Warpcast"
+              alt="Farcaster"
               width={20}
               height={20}
               className="mr-2"
@@ -515,7 +515,7 @@ export function MintButton({
           <DialogHeader>
             <DialogTitle>NFT Minted Successfully!</DialogTitle>
             <DialogDescription>
-              Your Zodiac Card NFT has been minted. You can view it on Blockscout or share it on Warpcast.
+              Your Zodiac Card NFT has been minted. You can view it on Blockscout or share it on Farcaster.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center">
@@ -542,12 +542,12 @@ export function MintButton({
               View on {NFT_EXPLORER_NAME}
             </Button>
             <Button
-              onClick={handleShareWarpcast}
+              onClick={handleShareFarcaster}
               variant="outline"
             >
               <Image
                 src="/farcaster.png"
-                alt="Warpcast"
+                alt="Farcaster"
                 width={20}
                 height={20}
                 className="mr-2"

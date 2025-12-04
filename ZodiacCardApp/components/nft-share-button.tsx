@@ -116,7 +116,7 @@ export function NFTShareButton({
         window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
       }
     } else {
-      // In browser - open Warpcast compose URL
+      // In browser - open Farcaster compose URL
       const encodedText = encodeURIComponent(text)
       const embedsParam = shareImageUrl
         ? `&embeds[]=${encodeURIComponent(shareImageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
