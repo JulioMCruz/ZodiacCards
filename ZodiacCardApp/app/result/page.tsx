@@ -408,7 +408,7 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
         window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
       }
     } else {
-      // In browser - open Warpcast compose URL
+      // In browser - open Farcaster compose URL
       const encodedText = encodeURIComponent(text)
       const embedsParam = shareImageUrl
         ? `&embeds[]=${encodeURIComponent(shareImageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
@@ -535,7 +535,7 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
             ) : (
               <>
                 <Share2 className="mr-2 h-4 w-4" />
-                Share on Warpcast
+                Share on Farcaster
               </>
             )}
           </Button>

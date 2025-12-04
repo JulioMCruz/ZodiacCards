@@ -22,7 +22,7 @@ export function ShareButton({ username, sign, fortune, imageUrl, className }: Sh
 
     text += ` Get yours at zodiaccard.xyz`
 
-    // Create the Warpcast URL
+    // Create the Farcaster URL
     let url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
     if (imageUrl) {
       url += `&embeds[]=${imageUrl}&embeds[]=${encodeURIComponent('https://zodiaccard.xyz')}`
@@ -40,7 +40,7 @@ export function ShareButton({ username, sign, fortune, imageUrl, className }: Sh
       className={`border-violet-300/30 text-violet-200 hover:bg-violet-800/30 ${className}`}
     >
       <Share2 className="mr-2 h-4 w-4" />
-      Share on Warpcast
+      Share on Farcaster
     </Button>
   )
 }
