@@ -15,11 +15,14 @@ import {
 import { Loader2, Sparkles, Wallet, Share2, SwitchCamera } from "lucide-react"
 import Image from "next/image"
 import { parseUnits, formatUnits, decodeEventLog, type Log } from "viem"
-import { zodiacNftAbi } from "@/lib/abis"
+import { zodiacNftAbi, zodiacImagePaymentV3Abi } from "@/lib/abis"
 import { type BaseError, ContractFunctionExecutionError } from 'viem'
 import { sdk } from "@farcaster/miniapp-sdk"
 import { useFarcaster } from "@/contexts/FarcasterContext"
 import { generateReferralTag, submitDivviReferral, isDivviEnabled } from "@/lib/divvi"
+
+// Payment contract address for marking as minted
+const IMAGE_PAYMENT_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS as `0x${string}`
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "42220")
@@ -27,7 +30,7 @@ const NETWORK_NAME = TARGET_CHAIN_ID === 42220 ? "Celo Mainnet" : "Celo Alfajore
 
 // Get contract addresses from environment variables
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS as `0x${string}`
-const MINT_FEE = parseUnits(process.env.NEXT_PUBLIC_CELO_MINT_PRICE || "10.0", 18) // CELO with 18 decimals
+const MINT_FEE = parseUnits(process.env.NEXT_PUBLIC_CELO_MINT_PRICE || "2.0", 18) // CELO with 18 decimals
 
 // Configure Blockscout (Celo NFT Explorer) URL based on network
 const NFT_EXPLORER_URL = TARGET_CHAIN_ID === 42220
@@ -47,6 +50,7 @@ interface MintButtonProps {
   zodiacType: string
   fortune: string
   username: string
+  paymentId?: number
   onSuccess?: (tokenId: string) => void
 }
 
@@ -77,6 +81,7 @@ export function MintButton({
   zodiacType,
   fortune,
   username,
+  paymentId,
   onSuccess
 }: MintButtonProps) {
   const { address } = useAccount()
@@ -221,10 +226,30 @@ export function MintButton({
             data: mintEvent.data,
             topics: mintEvent.topics,
           }) as { args: { tokenId: bigint } }
-          
+
           const newTokenId = args.tokenId.toString()
           setTokenId(newTokenId)
           setIsMinted(true)
+
+          // Call markAsMinted() on the payment contract if paymentId is available
+          if (paymentId && IMAGE_PAYMENT_CONTRACT_ADDRESS) {
+            try {
+              console.log('💾 Marking generation as minted on-chain...')
+              const markMintedHash = await writeContract({
+                address: IMAGE_PAYMENT_CONTRACT_ADDRESS,
+                abi: zodiacImagePaymentV3Abi,
+                functionName: 'markAsMinted',
+                args: [BigInt(paymentId), args.tokenId],
+              })
+
+              await publicClient.waitForTransactionReceipt({ hash: markMintedHash })
+              console.log('✅ Generation marked as minted on-chain')
+            } catch (markError) {
+              console.error('Error marking as minted:', markError)
+              // Don't fail the overall minting process if this fails
+            }
+          }
+
           onSuccess?.(newTokenId)
         } else {
           throw new Error('Mint transaction succeeded but no NFTMinted event found')
