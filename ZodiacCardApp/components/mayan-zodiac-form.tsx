@@ -7,19 +7,36 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Loader2 } from "lucide-react"
 import { getMayanZodiacSign } from "@/lib/zodiac-utils"
 import { useFarcaster } from "@/contexts/FarcasterContext"
 import { SelfVerifyButton } from "@/components/self-verify-button"
+import { IMAGE_FEE, IMAGE_PAYMENT_CONTRACT_ADDRESS } from "@/lib/constants"
+import { useAccount, usePublicClient } from "wagmi"
+import { parseEther } from "viem"
+import { useContractInteraction } from "@/hooks/useContractInteraction"
+
+const IMAGE_PAYMENT_ABI = [
+  {
+    inputs: [],
+    name: "payForImage",
+    outputs: [{ internalType: "uint256", name: "paymentId", type: "uint256" }],
+    stateMutability: "payable",
+    type: "function",
+  },
+] as const
 
 export function MayanZodiacForm() {
   const router = useRouter()
   const { isAuthenticated, user } = useFarcaster()
+  const { address, isConnected } = useAccount()
+  const publicClient = usePublicClient()
+  const { writeContract, waitForTransaction } = useContractInteraction()
   const [username, setUsername] = useState("")
   const [day, setDay] = useState("")
   const [month, setMonth] = useState("")
   const [year, setYear] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState("")
 
   // Auto-populate username from Farcaster context
@@ -46,6 +63,11 @@ export function MayanZodiacForm() {
     e.preventDefault()
     setError("")
 
+    if (!isConnected || !publicClient) {
+      setError("Please connect your wallet first")
+      return
+    }
+
     if (!username || !day || !month || !year) {
       setError("Please fill in all fields")
       return
@@ -70,27 +92,53 @@ export function MayanZodiacForm() {
       return
     }
 
-    setIsLoading(true)
+    setIsProcessing(true)
     try {
       const sign = getMayanZodiacSign(dayNum, monthNum, yearNum)
-      const params = new URLSearchParams({
-        username,
-        day,
-        month,
-        year,
-        sign: sign.name,
-        zodiacType: "mayan",
+
+      // Execute payment transaction
+      const hash = await writeContract({
+        address: IMAGE_PAYMENT_CONTRACT_ADDRESS,
+        abi: IMAGE_PAYMENT_ABI,
+        functionName: "payForImage",
+        args: [],
+        value: parseEther(IMAGE_FEE),
       })
 
+      // Wait for transaction confirmation
+      await waitForTransaction(hash)
+
+      // Navigate to result page with payment hash
+      const params = new URLSearchParams({
+        username,
+        sign: sign.name,
+        zodiacType: "mayan",
+        paymentHash: hash,
+      })
       router.push(`/result?${params.toString()}`)
     } catch (err) {
-      setError("Something went wrong. Please try again.")
-      setIsLoading(false)
+      console.error("Payment error:", err)
+      const error = err as Error
+      if (error.message.includes('user rejected') || error.message.includes('User rejected')) {
+        setError("Transaction was rejected. Please try again.")
+      } else {
+        setError(error.message || "Payment failed. Please try again.")
+      }
+      setIsProcessing(false)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Wallet Connection Notice */}
+      {!isConnected && (
+        <div className="p-4 rounded-lg bg-amber-100 border-2 border-amber-400">
+          <p className="text-gray-800 text-sm font-medium text-center">
+            ⚠️ Please connect your wallet using the button at the top right to continue
+          </p>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="username" className="text-gray-800">
           Farcaster Username
@@ -164,7 +212,7 @@ export function MayanZodiacForm() {
         <div className="space-y-2">
           <SelfVerifyButton
             onVerificationSuccess={handleSelfVerification}
-            disabled={isLoading}
+            disabled={isProcessing}
             variant="amber"
           />
           <p className="text-xs text-gray-600 text-center">
@@ -178,11 +226,26 @@ export function MayanZodiacForm() {
       <Button
         type="submit"
         className="w-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-medium"
-        disabled={isLoading}
+        disabled={isProcessing || !isConnected}
       >
-        <Sparkles className="mr-2 h-4 w-4" />
-        {isLoading ? "Consulting the stars..." : "Reveal My Fortune"}
+        {isProcessing ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing Payment...
+          </>
+        ) : (
+          <>
+            <Sparkles className="mr-2 h-4 w-4" />
+            {`Reveal My Fortune (${IMAGE_FEE} CELO)`}
+          </>
+        )}
       </Button>
+
+      {!isConnected && (
+        <p className="text-amber-600 text-xs text-center font-medium">
+          Please connect your wallet to continue
+        </p>
+      )}
 
       <p className="text-xs text-center text-gray-600">
         Your fortune will be generated using AI based on your Mayan zodiac sign

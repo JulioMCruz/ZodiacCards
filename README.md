@@ -10,13 +10,67 @@
 
 **Network**: Celo Mainnet (Chain ID: 42220)
 
-**Deployed Contract**: `0x415Df58904f56A159748476610B8830db2548158`
-- [View on Celoscan](https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158)
+### 📜 Smart Contract Evolution
+
+#### 🆕 V3 Contracts (Current - Active)
+**Deployed**: December 3, 2025
+
+**V3 NFT Contract**:
+- **Proxy Address**: `0x3ff2E08339588c594E6155Fd088f9668b2E7c775`
+- **Implementation**: `0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b`
+- [View on Celoscan](https://celoscan.io/address/0x3ff2E08339588c594E6155Fd088f9668b2E7c775)
 - ✅ **Verified Contract** - Source code publicly available
-- Mint Fee: **10.0 CELO** (native token payment)
+- Mint Fee: **2.0 CELO** (reduced pricing)
 - Royalty: 2.5% (ERC2981)
 - Proxy Type: UUPS Upgradeable
 - Compiler: Solidity v0.8.20 with 200 optimization runs
+- **Status**: ✅ Active - All new mints use this contract
+- **Features**: Clean state, dual mint functions, payment tracking
+
+**V3 Payment Contract**:
+- **Address**: `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3`
+- [View on Celoscan](https://celoscan.io/address/0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3)
+- Image Generation Fee: **2.0 CELO**
+- **Status**: ✅ Active - All new fortune generations
+- **Features**: Gas-free metadata storage, NFT tracking
+
+#### 📦 V2 Contracts (Legacy - Read-Only)
+**Deployed**: October-November 2025
+
+**V2 NFT Contract**:
+- **Proxy Address**: `0x415Df58904f56A159748476610B8830db2548158`
+- [View on Celoscan](https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158)
+- ✅ **Verified Contract** - Source code publicly available
+- Mint Fee: **10.0 CELO**
+- **Status**: 🔒 Read-Only - Corrupted state (stuck `_nextTokenId`)
+- **Note**: Historical NFTs viewable, new mints disabled
+
+**V2 Payment Contract**:
+- **Address**: `0x52e4212bd4085296168A7f880DfB6B646d52Fe61`
+- [View on Celoscan](https://celoscan.io/address/0x52e4212bd4085296168A7f880DfB6B646d52Fe61)
+- **Status**: 🔒 Read-Only - Legacy payments viewable
+
+#### 🌱 V1 Contracts (Original - Historical)
+**Deployed**: October 2025
+
+**V1 NFT Contract**:
+- **Address**: [To be documented]
+- **Status**: 🔒 Historical - Legacy NFTs viewable in collection
+- **Note**: Original implementation, basic minting functionality
+- **Project Launch**: October 23, 2025 (Initial framework)
+
+### 🔄 Complete Contract Version Summary
+
+| Version | Type | Address | Status | Mint Fee | Notes |
+|---------|------|---------|--------|----------|-------|
+| **V3** | NFT Proxy | `0x3ff2E08339588c594E6155Fd088f9668b2E7c775` | ✅ Active | 2.0 CELO | Clean state, dual functions |
+| **V3** | NFT Implementation | `0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b` | ✅ Active | - | UUPS upgradeable |
+| **V3** | Payment | `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3` | ✅ Active | 2.0 CELO | Gas-free storage |
+| **V2** | NFT Proxy | `0x415Df58904f56A159748476610B8830db2548158` | 🔒 Read-Only | 10.0 CELO | Corrupted state |
+| **V2** | Payment | `0x52e4212bd4085296168A7f880DfB6B646d52Fe61` | 🔒 Read-Only | 2.0 CELO | Legacy payments |
+| **V1** | NFT | [TBD] | 🔒 Historical | [TBD] | Original contract |
+
+> **Backward Compatibility**: The frontend automatically displays NFTs from **all versions** (V1, V2, and V3) in the collection page, ensuring complete historical visibility and access to all your minted fortunes.
 
 ## Overview
 
@@ -31,7 +85,7 @@ The integration with Farcaster's social protocol allows users to share their for
 
 ## Features
 
-- 🎴 Mint unique Zodiac Fortune NFTs for **10.0 CELO**
+- 🎴 Mint unique Zodiac Fortune NFTs for **2.0 CELO** (reduced from 10.0 CELO)
 - 🔮 AI-powered fortune predictions using OpenAI GPT-4
 - 🔐 **Self Protocol Integration** - Privacy-preserving identity verification
   - Zero-knowledge proof verification for date of birth
@@ -47,8 +101,9 @@ The integration with Farcaster's social protocol allows users to share their for
 - 🔄 Secondary market trading capabilities
 - 🖼️ Farcaster Frames integration for social sharing
 - 🌐 Native Celo blockchain deployment (carbon-negative)
-- 💰 Pay with native CELO tokens - **10.0 CELO** per mint
+- 💰 Pay with native CELO tokens - **2.0 CELO** per mint (reduced pricing)
 - 📱 Optimized for Farcaster Mini App experience
+- 🔄 Backward compatible - View all your V1 NFTs in collection
 
 ## 🔒 Security
 
@@ -81,69 +136,136 @@ All API keys and private keys are properly protected:
 
 ```mermaid
 graph TB
-    subgraph Frontend
+    subgraph Frontend["Frontend - Next.js 15 + React 19"]
         UI[User Interface]
-        WC[Wallet Connection]
-        AI[AI Integration]
+        FC[Farcaster SDK]
+        WC[Wallet Connection<br/>Wagmi v2 + Viem v2]
+        SELF[Self Protocol SDK<br/>ZK Proofs]
     end
 
-    subgraph Backend
-        API[Next.js API Routes]
-        Auth[Authentication]
-        Cache[Redis Cache]
+    subgraph Backend["Backend - Next.js API Routes"]
+        API[API Routes]
+        Fortune[Fortune Generator<br/>Replicate Flux Pro]
+        IPFS_API[IPFS Upload<br/>Pinata]
+        S3[AWS S3 Storage]
     end
 
-    subgraph Blockchain
-        SC[Smart Contracts]
-        IPFS[IPFS Storage]
-        Events[Event Listeners]
+    subgraph Blockchain["Celo Mainnet - Smart Contracts"]
+        PaymentV3[Payment Contract V3<br/>0x2e73...51f3]
+        NFTV3[NFT Contract V3<br/>0x3ff2...c775]
+        NFTV2[NFT Contract V2<br/>0x415D...8158<br/>Legacy Read-Only]
     end
 
+    subgraph External["External Services"]
+        IPFS[IPFS Network<br/>Metadata Storage]
+        Divvi[Divvi Protocol<br/>Referral Tracking]
+        Blockscout[Blockscout API<br/>NFT Indexing]
+    end
+
+    UI --> FC
     UI --> WC
-    UI --> AI
-    WC --> API
-    AI --> API
-    API --> Auth
-    API --> Cache
-    API --> SC
-    SC --> IPFS
-    SC --> Events
-    Events --> API
+    UI --> SELF
+    FC --> API
+    WC --> PaymentV3
+    WC --> NFTV3
+    SELF --> API
+
+    API --> Fortune
+    API --> IPFS_API
+    API --> S3
+
+    Fortune --> S3
+    IPFS_API --> IPFS
+
+    PaymentV3 --> IPFS
+    NFTV3 --> IPFS
+    NFTV3 --> Divvi
+
+    UI --> Blockscout
+    Blockscout --> NFTV3
+    Blockscout --> NFTV2
 ```
 
 ## Workflow
 
+### Complete User Journey (V3 Architecture)
+
 ```mermaid
 sequenceDiagram
     actor User
-    participant UI as Frontend
+    participant FC as Farcaster App
+    participant UI as Zodiac Card UI
+    participant SELF as Self Protocol
     participant API as Backend API
-    participant AI as AI Service
-    participant BC as Blockchain
-    participant IPFS as IPFS Storage
+    participant Flux as Replicate Flux Pro
+    participant S3 as AWS S3
+    participant PayV3 as Payment Contract V3
+    participant IPFS as IPFS/Pinata
+    participant NFTV3 as NFT Contract V3
+    participant Divvi as Divvi Protocol
+    participant BS as Blockscout
 
-    User->>UI: Connect Wallet
-    UI->>API: Authenticate
-    API-->>UI: Session Token
+    Note over User,BS: Step 1: Authentication & Data Collection
+    User->>FC: Open Zodiac Card Mini App
+    FC->>UI: Launch App
+    UI->>User: Display Fortune Form
 
-    User->>UI: Enter Birth Details
-    UI->>AI: Generate Fortune
-    AI-->>UI: Fortune Prediction
+    alt Self Protocol Flow (Optional)
+        User->>SELF: Scan QR Code with Self App
+        SELF->>API: Send ZK Proof (DOB)
+        API-->>UI: Auto-fill Birth Date
+    else Manual Entry
+        User->>UI: Manually Enter Birth Details
+    end
 
-    User->>UI: Mint NFT
-    UI->>API: Prepare Metadata
-    API->>IPFS: Store Metadata
-    IPFS-->>API: IPFS Hash
-    API->>BC: Mint NFT
-    BC-->>UI: NFT Minted
-    UI-->>User: Display NFT
+    Note over User,BS: Step 2: Fortune Generation (2.0 CELO)
+    User->>UI: Click "Generate Fortune"
+    UI->>PayV3: createImagePayment() + 2.0 CELO
+    PayV3-->>UI: Return paymentId
 
-    User->>UI: View Fortune
-    UI->>BC: Fetch NFT Data
-    BC-->>UI: Token URI
-    UI->>IPFS: Fetch Metadata
-    IPFS-->>UI: Card Details
-    UI-->>User: Display Card
+    UI->>API: /api/generate-fortune (paymentId, birthData)
+    API->>Flux: Generate AI Image
+    Flux-->>S3: Store Image
+    S3-->>API: Image URL
+
+    API->>API: Create Fortune Metadata JSON
+    API->>IPFS: Upload Generation Metadata
+    IPFS-->>API: IPFS Hash (metadata URI)
+
+    API->>PayV3: storeGenerationMetadata(paymentId, metadataURI)
+    PayV3-->>API: Metadata Stored ✅
+    API-->>UI: Fortune Generated ✅
+
+    Note over User,BS: Step 3: NFT Minting (2.0 CELO)
+    User->>UI: Click "Mint NFT"
+    UI->>API: /api/upload-to-ipfs (fortune data)
+    API->>IPFS: Upload NFT Metadata
+    IPFS-->>API: NFT Metadata URI
+
+    UI->>NFTV3: mintFromImagePayment(to, metadataURI, paymentId) + 2.0 CELO
+    Note over NFTV3: Auto-increment tokenId
+    NFTV3->>IPFS: Link Metadata URI
+    NFTV3->>Divvi: Track Referral (dataSuffix)
+    NFTV3-->>UI: Emit NFTMinted(tokenId, uri, paymentId)
+
+    UI->>PayV3: markAsMinted(paymentId, tokenId)
+    PayV3-->>UI: Marked as Minted ✅
+
+    UI-->>User: Display Minted NFT Card
+
+    Note over User,BS: Step 4: View Collection
+    User->>UI: Navigate to Collection
+    UI->>BS: Fetch NFT Transfers (V3 Contract)
+    BS-->>UI: V3 NFT List
+    UI->>BS: Fetch NFT Transfers (V2 Contract)
+    BS-->>UI: V2 NFT List (Legacy)
+
+    loop For Each NFT
+        UI->>IPFS: Fetch Metadata by tokenURI
+        IPFS-->>UI: NFT Metadata JSON
+    end
+
+    UI-->>User: Display Complete Collection (V2 + V3)
 ```
 
 ## Project Structure
@@ -223,8 +345,8 @@ yarn test
 
 6. Deploy to Celo networks
 ```bash
-# Deploy to Celo Alfajores testnet
-yarn deploy --network celoAlfajores
+# Deploy to Celo Sepolia testnet
+yarn deploy --network celoSepolia
 
 # Deploy to Celo mainnet
 yarn deploy --network celo
@@ -253,8 +375,22 @@ cp .env.example .env.local
 
 # Required environment variables:
 # NEXT_PUBLIC_CHAIN_ID=42220 (Celo Mainnet)
-# NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x415Df58904f56A159748476610B8830db2548158
-# NEXT_PUBLIC_CELO_MINT_PRICE=5.0
+#
+# V3 Contracts (Current - Active):
+# NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x3ff2E08339588c594E6155Fd088f9668b2E7c775
+# NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS=0x3ff2E08339588c594E6155Fd088f9668b2E7c775
+# NEXT_PUBLIC_IMPLEMENTATION_CONTRACT_ADDRESS=0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b
+# NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS=0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3
+#
+# V2 Contracts (Legacy - Read-Only):
+# NEXT_PUBLIC_NFT_CONTRACT_ADDRESS_V2=0x415Df58904f56A159748476610B8830db2548158
+# NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS_V2=0x52e4212bd4085296168A7f880DfB6B646d52Fe61
+#
+# Pricing:
+# NEXT_PUBLIC_CELO_MINT_PRICE=2.0
+# NEXT_PUBLIC_IMAGE_FEE=2.0
+#
+# Network & APIs:
 # NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-project-id>
 # NEXT_PUBLIC_RPC_URL_CELO=https://forno.celo.org
 # OPENAI_API_KEY=<your-openai-key>
@@ -274,8 +410,10 @@ pnpm dev
 ```
 
 5. Smart contracts are already deployed
-- Mainnet contract: `0x415Df58904f56A159748476610B8830db2548158`
-- See [DEPLOYMENT_SUCCESS.md](./DEPLOYMENT_SUCCESS.md) for details
+- **V3 NFT Contract (Active)**: `0x3ff2E08339588c594E6155Fd088f9668b2E7c775`
+- **V3 Payment Contract (Active)**: `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3`
+- **V2 NFT Contract (Legacy)**: `0x415Df58904f56A159748476610B8830db2548158`
+- See contract evolution table above for full details
 
 ## Contributing
 

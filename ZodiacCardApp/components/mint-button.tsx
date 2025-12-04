@@ -15,11 +15,14 @@ import {
 import { Loader2, Sparkles, Wallet, Share2, SwitchCamera } from "lucide-react"
 import Image from "next/image"
 import { parseUnits, formatUnits, decodeEventLog, type Log } from "viem"
-import { zodiacNftAbi } from "@/lib/abis"
+import { zodiacNftAbi, zodiacImagePaymentV3Abi } from "@/lib/abis"
 import { type BaseError, ContractFunctionExecutionError } from 'viem'
 import { sdk } from "@farcaster/miniapp-sdk"
 import { useFarcaster } from "@/contexts/FarcasterContext"
 import { generateReferralTag, submitDivviReferral, isDivviEnabled } from "@/lib/divvi"
+
+// Payment contract address for marking as minted
+const IMAGE_PAYMENT_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS as `0x${string}`
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "42220")
@@ -27,7 +30,7 @@ const NETWORK_NAME = TARGET_CHAIN_ID === 42220 ? "Celo Mainnet" : "Celo Alfajore
 
 // Get contract addresses from environment variables
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS as `0x${string}`
-const MINT_FEE = parseUnits(process.env.NEXT_PUBLIC_CELO_MINT_PRICE || "10.0", 18) // CELO with 18 decimals
+const MINT_FEE = parseUnits(process.env.NEXT_PUBLIC_CELO_MINT_PRICE || "2.0", 18) // CELO with 18 decimals
 
 // Configure Blockscout (Celo NFT Explorer) URL based on network
 const NFT_EXPLORER_URL = TARGET_CHAIN_ID === 42220
@@ -47,6 +50,8 @@ interface MintButtonProps {
   zodiacType: string
   fortune: string
   username: string
+  paymentId?: number
+  metadataURI?: string
   onSuccess?: (tokenId: string) => void
 }
 
@@ -77,6 +82,8 @@ export function MintButton({
   zodiacType,
   fortune,
   username,
+  paymentId,
+  metadataURI,
   onSuccess
 }: MintButtonProps) {
   const { address } = useAccount()
@@ -144,17 +151,43 @@ export function MintButton({
 
       // No approval needed for native CELO payment
 
-      // Upload to IPFS
+      // Always upload image to IPFS and create proper NFT metadata
       setMintStep('uploading')
-      const { ipfsUrl: imageIpfsUrlUploaded } = await uploadToIPFS(imageUrl)
+      let metadataIpfsUrl: string
+      let imageSourceUrl = imageUrl
+
+      // If metadataURI is provided, fetch the generation metadata to get the S3 image URL
+      if (metadataURI) {
+        console.log('📦 Fetching generation metadata from payment contract:', metadataURI)
+        try {
+          const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+          const metadataUrl = metadataURI.replace('ipfs://', `${PINATA_GATEWAY}/ipfs/`)
+          const response = await fetch(metadataUrl)
+          const generationMetadata = await response.json()
+
+          console.log('📦 Generation metadata loaded:', generationMetadata)
+          // Use the S3 image URL from generation metadata
+          imageSourceUrl = generationMetadata.imageUrl || imageUrl
+          console.log('🖼️ Using image URL from generation:', imageSourceUrl)
+        } catch (err) {
+          console.error('Error fetching generation metadata:', err)
+          // Continue with provided imageUrl as fallback
+        }
+      }
+
+      // Step 1: Upload image to IPFS (from S3 URL or direct URL)
+      console.log('📤 Uploading image to IPFS from:', imageSourceUrl)
+      const { ipfsUrl: imageIpfsUrlUploaded } = await uploadToIPFS(imageSourceUrl)
       if (!imageIpfsUrlUploaded) {
         setError('Failed to upload image to IPFS')
         setMintStep('initial')
         return
       }
       setImageIpfsUrl(imageIpfsUrlUploaded)
+      console.log('✅ Image uploaded to IPFS:', imageIpfsUrlUploaded)
 
-      const metadata = {
+      // Step 2: Create proper NFT metadata with IPFS image
+      const nftMetadata = {
         name: `Zodiac Card Fortune #${Date.now()}`,
         description: `A unique Zodiac fortune for ${username}. ${fortune}`,
         image: `https://ipfs.io/ipfs/${imageIpfsUrlUploaded.replace('ipfs://', '')}`,
@@ -167,12 +200,17 @@ export function MintButton({
         ]
       }
 
-      const { ipfsUrl: metadataIpfsUrl } = await uploadToIPFS(JSON.stringify(metadata), true)
-      if (!metadataIpfsUrl) {
-        setError('Failed to upload metadata to IPFS')
+      // Step 3: Upload NFT metadata to IPFS
+      console.log('📤 Uploading NFT metadata to IPFS')
+      console.log('📋 NFT Metadata format:', JSON.stringify(nftMetadata, null, 2))
+      const { ipfsUrl: uploadedMetadataUrl } = await uploadToIPFS(JSON.stringify(nftMetadata), true)
+      if (!uploadedMetadataUrl) {
+        setError('Failed to upload NFT metadata to IPFS')
         setMintStep('initial')
         return
       }
+      metadataIpfsUrl = uploadedMetadataUrl
+      console.log('✅ NFT metadata uploaded to IPFS:', metadataIpfsUrl)
 
       // Mint NFT with native CELO payment
       setMintStep('minting')
@@ -187,12 +225,24 @@ export function MintButton({
           hasTag: !!referralTag
         })
 
+        // Use mintFromImagePayment if we have a paymentId, otherwise use basic mint
+        const useMintFromImagePayment = paymentId !== undefined && paymentId > 0
+
+        console.log('🔧 Mint function selection:', {
+          function: useMintFromImagePayment ? 'mintFromImagePayment' : 'mint',
+          paymentId,
+          address,
+          metadataURI: metadataIpfsUrl
+        })
+
         const mintHash = await writeContract({
           address: CONTRACT_ADDRESS,
           abi: zodiacNftAbi,
-          functionName: 'mint',
-          args: [address, metadataIpfsUrl],
-          value: MINT_FEE, // Send CELO with the transaction
+          functionName: useMintFromImagePayment ? 'mintFromImagePayment' : 'mint',
+          args: useMintFromImagePayment
+            ? [address, metadataIpfsUrl, paymentId]
+            : [address, metadataIpfsUrl],
+          value: MINT_FEE, // Send 2 CELO with the transaction
           dataSuffix: referralTag ? `0x${referralTag}` : undefined, // Add Divvi referral tag
         })
 
@@ -221,10 +271,30 @@ export function MintButton({
             data: mintEvent.data,
             topics: mintEvent.topics,
           }) as { args: { tokenId: bigint } }
-          
+
           const newTokenId = args.tokenId.toString()
           setTokenId(newTokenId)
           setIsMinted(true)
+
+          // Call markAsMinted() on the payment contract if paymentId is available
+          if (paymentId && IMAGE_PAYMENT_CONTRACT_ADDRESS) {
+            try {
+              console.log('💾 Marking generation as minted on-chain...')
+              const markMintedHash = await writeContract({
+                address: IMAGE_PAYMENT_CONTRACT_ADDRESS,
+                abi: zodiacImagePaymentV3Abi,
+                functionName: 'markAsMinted',
+                args: [BigInt(paymentId), args.tokenId],
+              })
+
+              await publicClient.waitForTransactionReceipt({ hash: markMintedHash })
+              console.log('✅ Generation marked as minted on-chain')
+            } catch (markError) {
+              console.error('Error marking as minted:', markError)
+              // Don't fail the overall minting process if this fails
+            }
+          }
+
           onSuccess?.(newTokenId)
         } else {
           throw new Error('Mint transaction succeeded but no NFTMinted event found')

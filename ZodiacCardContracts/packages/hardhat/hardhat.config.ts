@@ -166,8 +166,9 @@ const config: HardhatUserConfig = {
       },
     },
     celoAlfajores: {
-      url: "https://alfajores-forno.celo-testnet.org",
+      url: process.env.CELO_ALFAJORES_RPC_URL || "https://rpc.ankr.com/celo_alfajores",
       accounts: [deployerPrivateKey],
+      timeout: 60000,
       verify: {
         etherscan: {
           apiUrl: "https://api-alfajores.celoscan.io",

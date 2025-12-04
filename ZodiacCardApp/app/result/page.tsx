@@ -11,21 +11,34 @@ import { ArrowLeft, Loader2, Share2 } from "lucide-react"
 import { Header } from "@/components/header"
 import { MintButton } from "@/components/mint-button"
 import { ZodiacLoading } from "@/components/zodiac-loading"
+import { useAccount, usePublicClient } from "wagmi"
+import { parseEther } from "viem"
+import { IMAGE_FEE, IMAGE_PAYMENT_CONTRACT_ADDRESS } from "@/lib/constants"
+import { sdk } from "@farcaster/miniapp-sdk"
+import { useFarcaster } from "@/contexts/FarcasterContext"
+import { useContractInteraction } from "@/hooks/useContractInteraction"
+import { zodiacImagePaymentV3Abi } from "@/lib/abis"
 
 export default function ResultPage() {
-  
+
   // console.log('ResultPage')
 
   const searchParams = useSearchParams()
+  const { address } = useAccount()
+  const { isAuthenticated } = useFarcaster()
+  const publicClient = usePublicClient()
+  const { writeContract, waitForTransaction } = useContractInteraction()
   const username = searchParams.get("username") || ""
   const sign = searchParams.get("sign") || ""
   const zodiacType = searchParams.get("zodiacType") || ""
-  
+  const paymentHash = searchParams.get("paymentHash") || "" // Payment transaction hash
+
   // Single ref to track generation state
   const generationStateRef = useRef({
     hasStarted: false,
     fortuneGenerated: false,
-    imageGenerated: false
+    imageGenerated: false,
+    storedOnChain: false
   })
 
   const [fortune, setFortune] = useState("")
@@ -33,13 +46,131 @@ export default function ResultPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [hasGeneratedFortune, setHasGeneratedFortune] = useState(false)
+  const [generationId, setGenerationId] = useState<number | null>(null)
+  const [metadataURI, setMetadataURI] = useState<string | null>(null)
+  const [isUploadingShare, setIsUploadingShare] = useState(false)
+
+  // Payment is already done when arriving at this page
+  const hasPaid = !!paymentHash
 
   // Get zodiac info
   const zodiacInfo = zodiacData[zodiacType as keyof typeof zodiacData]
   const signInfo = zodiacInfo?.signs.find((s) => s.name === sign) ||
     zodiacInfo?.signs.find((s) => s.name.includes(sign)) || { name: sign, element: "Unknown", symbol: "" }
 
+  // Store generation on-chain (replaces database save)
+  async function storeOnChain() {
+    if (!address || !fortune || !imageUrl || !paymentHash) {
+      console.log('Missing required data for on-chain storage:', { address, fortune: !!fortune, imageUrl: !!imageUrl, paymentHash: !!paymentHash })
+      return
+    }
+
+    if (generationStateRef.current.storedOnChain) return
+
+    try {
+      console.log('📦 Uploading metadata to IPFS...')
+
+      // 1. Upload metadata to IPFS
+      const metadataResponse = await fetch('/api/upload-generation-metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fortuneText: fortune,
+          imageUrl,
+          zodiacType,
+          zodiacSign: sign,
+          paymentTxHash: paymentHash,
+          paymentAmount: IMAGE_FEE,
+          username: username || '',
+          description: `A unique Zodiac fortune for ${username || 'you'}.`,
+        }),
+      })
+
+      const metadataData = await metadataResponse.json()
+
+      if (!metadataResponse.ok || !metadataData.ipfsUri) {
+        console.error('Failed to upload metadata to IPFS:', metadataData.error)
+        return
+      }
+
+      const ipfsUri = metadataData.ipfsUri
+      console.log('✅ Metadata uploaded to IPFS:', ipfsUri)
+
+      // Store metadataURI in state for MintButton
+      setMetadataURI(ipfsUri)
+
+      // 2. Extract paymentId from payment transaction receipt
+      if (!publicClient) {
+        console.error('No public client available')
+        return
+      }
+
+      const receipt = await publicClient.getTransactionReceipt({ hash: paymentHash as `0x${string}` })
+
+      // Find the ImagePaymentReceived event
+      const paymentEvent = receipt.logs.find((log: any) => {
+        try {
+          if (log.address.toLowerCase() !== IMAGE_PAYMENT_CONTRACT_ADDRESS.toLowerCase()) {
+            return false
+          }
+          return log.topics.length >= 3
+        } catch {
+          return false
+        }
+      })
+
+      if (!paymentEvent || !paymentEvent.topics[2]) {
+        console.error('Could not extract paymentId from transaction receipt')
+        return
+      }
+
+      const paymentId = BigInt(paymentEvent.topics[2])
+      console.log('✅ Extracted paymentId:', paymentId.toString())
+
+      // 3. Call backend API to store generation on-chain (server pays gas)
+      console.log('💾 Storing generation on-chain...')
+
+      const storeResponse = await fetch('/api/store-generation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentId: Number(paymentId),
+          metadataURI: ipfsUri,
+          userAddress: address,
+        }),
+      })
+
+      const storeData = await storeResponse.json()
+
+      if (!storeResponse.ok) {
+        console.error('Failed to store generation on-chain:', storeData.error)
+        throw new Error(storeData.error || 'Failed to store generation')
+      }
+
+      console.log('✅ Generation stored on-chain:', storeData.transactionHash)
+
+      generationStateRef.current.storedOnChain = true
+      setGenerationId(Number(paymentId)) // Store as number for compatibility
+      console.log(`✅ Generation stored on-chain with paymentId: ${paymentId}`)
+
+    } catch (err) {
+      console.error('Error storing generation on-chain:', err)
+      // Don't show error to user, this is a background operation
+    }
+  }
+
   useEffect(() => {
+    // Only proceed if we have payment confirmation
+    if (!hasPaid) {
+      setIsLoading(false)
+      setError("Payment required to generate your fortune and image")
+      return
+    }
+
     async function generateFortune() {
       if (!username || !sign || !zodiacType) {
         setIsLoading(false)
@@ -50,7 +181,6 @@ export default function ResultPage() {
       if (generationStateRef.current.fortuneGenerated) return
 
       try {
-        // console.log('Generating fortune')
         const response = await fetch("/api/generate-fortune", {
           method: "POST",
           headers: {
@@ -69,7 +199,6 @@ export default function ResultPage() {
           setFortune(data.fortune)
           generationStateRef.current.fortuneGenerated = true
         } else {
-          // Fallback fortune
           setFortune(
             `As a ${sign}, your crypto journey looks promising! The stars align for financial growth, and your natural ${signInfo.element} energy will guide you to make wise investment choices. Trust your intuition this week.`,
           )
@@ -77,7 +206,6 @@ export default function ResultPage() {
         }
       } catch (apiError) {
         console.error("API error:", apiError)
-        // Fallback fortune
         setFortune(
           `As a ${sign}, your crypto journey looks promising! The stars align for financial growth, and your natural ${signInfo.element} energy will guide you to make wise investment choices. Trust your intuition this week.`,
         )
@@ -94,7 +222,6 @@ export default function ResultPage() {
       if (generationStateRef.current.imageGenerated) return
 
       try {
-        // console.log('Generating image')
 
         //const prompt = `This digital artwork blends anime and cosmic art to depict a mystical character and a mistical animal what symbolize the  ${sign} embodying the zodiac ${zodiacType}, intertwined with base blockchain themes. The character boasts flowing blue and turquoise hair, large ${sign} caracteristics adorned with starry constellations, and a glowing base blockchain symbol floating beside the character, while the character holds a radiant base blockchain symbol that illuminates the character's robe, all set against an enchanting starry backdrop.`
         
@@ -174,17 +301,22 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
       }
     }
 
-    async function generateAll() {
+    async function initializeContent() {
       if (generationStateRef.current.hasStarted) return
-      
+
       try {
         generationStateRef.current.hasStarted = true
         setIsLoading(true)
-        
+
+        // Generate fortune first
         await generateFortune()
-        await generateImage()
-        
         setHasGeneratedFortune(true)
+
+        // If payment was made, generate image automatically
+        if (hasPaid) {
+          await generateImage()
+          // Database save will be triggered by the useEffect when imageUrl is set
+        }
       } catch (err) {
         console.error("Error in generation process:", err)
         setError("Failed to complete the generation process. Please try again.")
@@ -193,17 +325,96 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
       }
     }
 
-    generateAll()
+    initializeContent()
 
     return () => {
       // No need to reset the ref on cleanup as we want to preserve the generation state
     }
-  }, [username, sign, zodiacType, signInfo.element])
+  }, [username, sign, zodiacType, signInfo.element, hasPaid])
 
-  const handleShare = () => {
-    const text = `My ${zodiacType} zodiac fortune from Zodiac: As a ${sign}, ${fortune} Check yours at ZodiacCard.xyz`
-    const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
-    window.open(url, "_blank")
+  // Store on-chain when both fortune and imageUrl are ready
+  useEffect(() => {
+    if (address && fortune && imageUrl && paymentHash && !generationStateRef.current.storedOnChain) {
+      storeOnChain()
+    }
+  }, [address, fortune, imageUrl, paymentHash])
+
+  const handleShare = async () => {
+    // Build share text
+    let text = `Just revealed my Zodiac fortune! ✨\n\nZodiac: ${zodiacType.toUpperCase()}\nSign: ${sign}\n${fortune}\n\nCheck Zodiac Cards 🌟`
+
+    let shareImageUrl = imageUrl
+
+    // Upload image to S3 first to get a reliable URL for Farcaster
+    if (imageUrl) {
+      try {
+        setIsUploadingShare(true)
+        console.log('[Share] Uploading image to S3 for sharing')
+
+        const uploadResponse = await fetch('/api/upload-nft-share-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageUrl,
+            tokenId: generationId?.toString() || 'temp',
+          }),
+        })
+
+        if (uploadResponse.ok) {
+          const { s3Url } = await uploadResponse.json()
+          if (s3Url) {
+            shareImageUrl = s3Url
+            console.log('[Share] Successfully uploaded to S3:', s3Url)
+          } else {
+            console.warn('[Share] No S3 URL returned, using original image URL')
+          }
+        } else {
+          console.warn('[Share] Failed to upload to S3, using original image URL')
+        }
+      } catch (uploadError) {
+        console.error('[Share] Error uploading to S3:', uploadError)
+        console.log('[Share] Falling back to original image URL')
+      } finally {
+        setIsUploadingShare(false)
+      }
+    }
+
+    if (isAuthenticated) {
+      // In Farcaster app - use SDK with embeds
+      try {
+        const embeds: string[] = []
+
+        // Add S3 image URL if available
+        if (shareImageUrl) {
+          embeds.push(shareImageUrl)
+        }
+
+        // Add app link
+        embeds.push("https://zodiaccard.xyz")
+
+        console.log('[Share] Sharing with embeds:', embeds)
+
+        await sdk.actions.composeCast({
+          text,
+          embeds,
+        })
+      } catch (error) {
+        console.error('Error sharing with SDK:', error)
+        // Fallback to web URL
+        const encodedText = encodeURIComponent(text)
+        const embedsParam = shareImageUrl
+          ? `&embeds[]=${encodeURIComponent(shareImageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+          : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+        window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
+      }
+    } else {
+      // In browser - open Warpcast compose URL
+      const encodedText = encodeURIComponent(text)
+      const embedsParam = shareImageUrl
+        ? `&embeds[]=${encodeURIComponent(shareImageUrl)}&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+        : `&embeds[]=${encodeURIComponent("https://zodiaccard.xyz")}`
+      window.open(`https://warpcast.com/~/compose?text=${encodedText}${embedsParam}`, '_blank')
+    }
   }
 
   if (isLoading) {
@@ -270,11 +481,19 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
         </CardHeader>
 
         <CardContent className="text-center">
+          {/* Show loading state during image generation */}
+          {!imageUrl && !error && (
+            <div className="mb-6 w-full aspect-square rounded-lg overflow-hidden">
+              <ZodiacLoading message="Creating your character..." className="w-full h-full bg-amber-50/50 border border-amber-200" />
+            </div>
+          )}
+
+          {/* Show generated image */}
           {imageUrl && (
             <div className="mb-6 overflow-hidden">
               <div className="relative w-full aspect-square max-w-[400px] mx-auto rounded-xl overflow-hidden">
-                <Image 
-                  src={imageUrl} 
+                <Image
+                  src={imageUrl}
                   alt={`Generated character for ${username}'s ${zodiacType} ${sign}`}
                   fill
                   className="object-cover"
@@ -284,38 +503,49 @@ The artwork should maintain a perfect balance between anime aesthetics, zodiac m
             </div>
           )}
 
-          {generationStateRef.current.hasStarted && !imageUrl && !error && (
-            <div className="mb-6 w-full aspect-square rounded-lg overflow-hidden">
-              <ZodiacLoading message="Creating your character..." className="w-full h-full bg-amber-50/50 border border-amber-200" />
-            </div>
-          )}
-
           <div className="mb-6 p-4 rounded-lg bg-amber-50 border border-amber-200">
             <p className="text-gray-800 text-lg italic">{fortune}</p>
           </div>
+
           <p className="text-gray-600 text-sm">Generated on {new Date().toLocaleDateString()}</p>
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-3">
 
-          <MintButton username={username} zodiacSign={sign} fortune={fortune} zodiacType={zodiacType} imageUrl={imageUrl || ""} />
+          <MintButton
+            username={username}
+            zodiacSign={sign}
+            fortune={fortune}
+            zodiacType={zodiacType}
+            imageUrl={imageUrl || ""}
+            paymentId={generationId || undefined}
+            metadataURI={metadataURI || undefined}
+          />
 
-          {/* <Button onClick={handleShare} className="w-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-medium">
-            <Share2 className="mr-2 h-4 w-4" />
-            Share on Warpcast
+          <Button
+            onClick={handleShare}
+            className="w-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-medium"
+            disabled={isUploadingShare}
+          >
+            {isUploadingShare ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Preparing...
+              </>
+            ) : (
+              <>
+                <Share2 className="mr-2 h-4 w-4" />
+                Share on Warpcast
+              </>
+            )}
           </Button>
-          */}
-
-          {/* 
-                    <Link href={`/fortune/${zodiacType}`} className="w-full">
-          */}
 
           <Link href={`/`} className="w-full">
             <Button variant="outline" className="w-full border-amber-300 text-amber-500">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Try Another
             </Button>
-          </Link> 
+          </Link>
 
         </CardFooter>
       </Card>
