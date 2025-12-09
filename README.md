@@ -3,7 +3,7 @@
 > A Farcaster Mini App that generates personalized Zodiac fortunes and mints them as NFTs on Celo Mainnet.
 
 <div align="center">
-  <img src="ZodiacCardApp/public/Marketing.png" alt="Zodiac Card Banner" style="max-width: 300px; width: 100%;"/>
+  <img src="ZodiacCardApp/public/Marketing.png" alt="Zodiac Card Banner" style="max-height: 450px; width: auto;"/>
 </div>
 
 ## 🌐 Live Deployment
