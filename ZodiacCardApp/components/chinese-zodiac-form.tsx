@@ -15,6 +15,8 @@ import { IMAGE_FEE, IMAGE_PAYMENT_CONTRACT_ADDRESS } from "@/lib/constants"
 import { useAccount, usePublicClient } from "wagmi"
 import { parseEther } from "viem"
 import { useContractInteraction } from "@/hooks/useContractInteraction"
+import { SeasonalThemeSelector } from "@/components/seasonal-theme-selector"
+import { type SeasonalTheme, getDefaultTheme } from "@/lib/seasonal-themes"
 
 const IMAGE_PAYMENT_ABI = [
   {
@@ -36,6 +38,7 @@ export function ChineseZodiacForm() {
   const [year, setYear] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState("")
+  const [selectedTheme, setSelectedTheme] = useState<SeasonalTheme>(getDefaultTheme())
 
   // Auto-populate username from Farcaster context
   useEffect(() => {
@@ -97,6 +100,7 @@ export function ChineseZodiacForm() {
         sign: sign.name,
         zodiacType: "chinese",
         paymentHash: hash,
+        theme: selectedTheme,
       })
       router.push(`/result?${params.toString()}`)
     } catch (err) {
@@ -172,6 +176,12 @@ export function ChineseZodiacForm() {
           </p>
         </div>
       )}
+
+      {/* Seasonal Theme Selector */}
+      <SeasonalThemeSelector
+        selectedTheme={selectedTheme}
+        onThemeChange={setSelectedTheme}
+      />
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 

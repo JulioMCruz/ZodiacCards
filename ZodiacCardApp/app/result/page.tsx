@@ -18,6 +18,7 @@ import { sdk } from "@farcaster/miniapp-sdk"
 import { useFarcaster } from "@/contexts/FarcasterContext"
 import { useContractInteraction } from "@/hooks/useContractInteraction"
 import { zodiacImagePaymentV3Abi } from "@/lib/abis"
+import { type SeasonalTheme, buildSeasonalPrompt, getThemeById } from "@/lib/seasonal-themes"
 
 export default function ResultPage() {
 
@@ -32,6 +33,7 @@ export default function ResultPage() {
   const sign = searchParams.get("sign") || ""
   const zodiacType = searchParams.get("zodiacType") || ""
   const paymentHash = searchParams.get("paymentHash") || "" // Payment transaction hash
+  const selectedTheme = (searchParams.get("theme") as SeasonalTheme) || 'regular'
 
   // Single ref to track generation state
   const generationStateRef = useRef({
@@ -85,6 +87,8 @@ export default function ResultPage() {
           paymentAmount: IMAGE_FEE,
           username: username || '',
           description: `A unique Zodiac fortune for ${username || 'you'}.`,
+          theme: selectedTheme,
+          themeInfo: getThemeById(selectedTheme),
         }),
       })
 
@@ -226,18 +230,22 @@ export default function ResultPage() {
         //const prompt = `This digital artwork blends anime and cosmic art to depict a mystical character and a mistical animal what symbolize the  ${sign} embodying the zodiac ${zodiacType}, intertwined with base blockchain themes. The character boasts flowing blue and turquoise hair, large ${sign} caracteristics adorned with starry constellations, and a glowing base blockchain symbol floating beside the character, while the character holds a radiant base blockchain symbol that illuminates the character's robe, all set against an enchanting starry backdrop.`
         
 
-        const prompt = `Create a stunning digital artwork in an anime and cosmic art style featuring two main subjects: a mystical character and their spirit animal companion representing ${sign} of the ${zodiacType} zodiac.
+        const basePrompt = `Style: Semi-realistic anime art, mystical fantasy illustration, elegant cosmic art. Mature anime aesthetic with detailed shading and ethereal lighting. NOT chibi, NOT kawaii, NOT cartoonish, NOT photorealistic.
 
-The first subject is an ethereal anime character with an otherworldly presence. They have flowing hair in shades of celestial blue and turquoise, adorned with constellation patterns of ${sign}. Their elegant robes shimmer with cosmic energy and feature intricate ${zodiacType} zodiac symbols woven into the fabric. Their eyes reflect the wisdom of the stars, and they hold a glowing blockchain mystical symbol that pulses with ethereal energy.
+Create a stunning digital artwork featuring TWO mystical subjects that MUST both be visible: (1) an elegant female anime character and (2) her magical spirit animal companion, both representing ${sign} of the ${zodiacType} zodiac.
 
-The second subject is a majestic spirit animal that embodies the essence of ${sign}. This mystical creature radiates with stellar energy, its form partially composed of stardust and constellation lines. The animal's features blend traditional ${sign} symbolism with magical elements, creating a powerful guardian presence beside the character.
+The FIRST SUBJECT is a beautiful, elegant female anime character with a mystical and ethereal presence. She has detailed, sophisticated feminine facial features with flowing hair in shades of celestial blue and turquoise, adorned with glowing constellation patterns of ${sign}. Her elegant robes shimmer with cosmic energy and radiant light, featuring intricate ${zodiacType} zodiac symbols woven into the fabric with luminous fine detail. Her expressive eyes reflect the wisdom of the stars, and she holds a glowing blockchain symbol that pulses with ethereal golden energy. The character should have a graceful, mature feminine appearance with detailed shading, highlights, and magical luminescence.
+
+The SECOND SUBJECT is a majestic magical spirit animal companion that embodies the essence of ${sign}. This is NOT a normal animal - it is a mystical, supernatural creature that glows with cosmic energy and stellar light. The spirit animal appears prominently beside or near the character, its body radiating with brilliant ethereal energy, glowing auras, and shimmering stardust. Its form is partially translucent and composed of constellation lines, cosmic particles, and magical light effects. The animal has elegant proportions with glowing mystical features - luminous eyes, radiant fur/skin/feathers, and ethereal energy trails. It should look supernatural and magical, not realistic or normal.
 
 Both figures are surrounded by a mesmerizing cosmic backdrop featuring swirling nebulae in deep purples and blues, with blockchain mystical constellation patterns appearing among the stars. The composition creates a harmonious balance between the character, their spirit animal, and celestial elements, all unified by the mystical energy of ${sign}.
 
 The artwork should maintain a perfect balance between anime aesthetics, zodiac mysticism, and blockchain cosmic symbolism, creating a captivating and meaningful representation of ${sign}'s spiritual energy in the digital age.`
 
-        // console.log('🎨 Initiating image generation request with prompt length:', prompt.length)
-        // console.log('📄 Prompt:', prompt)
+        // Apply seasonal theme modifiers
+        const prompt = buildSeasonalPrompt(basePrompt, selectedTheme)
+
+        console.log(`🎨 Initiating image generation with theme: ${selectedTheme}`)
         
         const imageResponse = await fetch(process.env.NEXT_PUBLIC_IMAGE_GENERATION_URL || "", {
           method: "POST",

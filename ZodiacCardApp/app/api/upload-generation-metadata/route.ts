@@ -17,6 +17,13 @@ interface UploadMetadataRequest {
   paymentAmount: string
   username?: string
   description?: string
+  theme?: string
+  themeInfo?: {
+    id: string
+    name: string
+    description: string
+    emoji: string
+  }
 }
 
 export async function POST(req: Request) {
@@ -31,6 +38,8 @@ export async function POST(req: Request) {
       paymentAmount,
       username,
       description,
+      theme,
+      themeInfo,
     } = body
 
     // Validate required fields
@@ -51,12 +60,15 @@ export async function POST(req: Request) {
       paymentAmount,
       username: username || '',
       description: description || '',
+      theme: theme || 'regular',
+      themeInfo: themeInfo || { id: 'regular', name: 'Classic Zodiac', description: 'Traditional cosmic and anime style', emoji: '⭐' },
       generatedAt: new Date().toISOString(),
     }
 
     console.log('[Upload Metadata] Uploading to IPFS:', {
       zodiacType,
       zodiacSign,
+      theme: theme || 'regular',
       fortuneLength: fortuneText.length,
       imageUrl: imageUrl.substring(0, 50) + '...',
     })
