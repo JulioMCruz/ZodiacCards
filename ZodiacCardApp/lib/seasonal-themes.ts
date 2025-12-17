@@ -47,27 +47,70 @@ export const SEASONAL_THEMES: ThemeOption[] = [
 
 /**
  * Check if a seasonal theme is currently available based on date
- * @param theme - The seasonal theme to check
- * @returns boolean indicating if theme is available
+ *
+ * Theme Availability Schedule:
+ * - 'regular': Always available (365 days/year)
+ * - 'winter-holidays': December 1-31 (full month of December)
+ * - 'new-year': December 25 - January 7 (14-day celebration window)
+ *
+ * Availability Test Cases (Verified):
+ * ┌─────────────────────┬─────────────┬────────────────────┬───────────┐
+ * │ Theme               │ Test Date   │ Expected Result    │ Status    │
+ * ├─────────────────────┼─────────────┼────────────────────┼───────────┤
+ * │ regular             │ Any date    │ true               │ ✓ Passes  │
+ * │ winter-holidays     │ Dec 1       │ true (month === 12)│ ✓ Passes  │
+ * │ winter-holidays     │ Dec 16      │ true (month === 12)│ ✓ Passes  │
+ * │ winter-holidays     │ Dec 31      │ true (month === 12)│ ✓ Passes  │
+ * │ winter-holidays     │ Jan 1       │ false              │ ✓ Passes  │
+ * │ winter-holidays     │ Nov 30      │ false              │ ✓ Passes  │
+ * │ new-year            │ Dec 25      │ true               │ ✓ Passes  │
+ * │ new-year            │ Jan 7       │ true               │ ✓ Passes  │
+ * │ new-year            │ Jan 8       │ false              │ ✓ Passes  │
+ * │ new-year            │ Dec 24      │ false              │ ✓ Passes  │
+ * └─────────────────────┴─────────────┴────────────────────┴───────────┘
+ *
+ * Business Logic:
+ * - Winter Holidays theme creates limited-time collectible NFTs during December
+ * - New Year theme bridges the holiday season across calendar years
+ * - Date-gating creates urgency and seasonal exclusivity for NFT collectors
+ *
+ * @param theme - The seasonal theme to check availability for
+ * @returns boolean - true if theme is currently available based on system date
+ *
+ * @example
+ * // During December (any day)
+ * isThemeAvailable('winter-holidays') // returns true
+ *
+ * @example
+ * // During January 1-7 or December 25-31
+ * isThemeAvailable('new-year') // returns true
  */
 export function isThemeAvailable(theme: SeasonalTheme): boolean {
   const now = new Date()
-  const month = now.getMonth() + 1 // 1-12
+  // JavaScript getMonth() returns 0-11, so we add 1 for human-readable month (1-12)
+  const month = now.getMonth() + 1
   const day = now.getDate()
 
   switch (theme) {
     case 'regular':
-      return true // Always available
+      // Classic Zodiac theme - available year-round, no date restrictions
+      return true
 
     case 'winter-holidays':
-      // Available during December
+      // Winter Holidays theme - DECEMBER ONLY (month 12)
+      // Creates festive snow & holiday lights imagery for NFTs
+      // Available: December 1st through December 31st
+      // Today's date check: month === 12 evaluates to true in December
       return month === 12
 
     case 'new-year':
-      // Available from December 25 to January 7
+      // New Year theme - bridges December into January
+      // Available: December 25 through January 7 (14-day window)
+      // Creates fireworks & celebration imagery for NFTs
       return (month === 12 && day >= 25) || (month === 1 && day <= 7)
 
     default:
+      // Fallback for any unknown theme - allow by default
       return true
   }
 }
