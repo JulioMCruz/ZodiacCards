@@ -13,7 +13,7 @@ This is the frontend application for Zodiac Card, a Farcaster Mini App that comb
 - 🔮 **AI Fortune Generation**: Powered by OpenAI GPT-4 via OpenRouter
 - 🖼️ **AI Image Generation**: Flux Pro via Replicate for high-quality fortune card images
 - 💳 **Two-Tier Payment System**:
-  - Image Generation: 2.0 CELO (via Payment Contract)
+  - Image Generation: 1.0 CELO (via Payment Contract) - *Promotional pricing!*
   - NFT Minting: 2.0 CELO (via NFT Contract)
 - 📱 **Farcaster Mini App**: Native integration with Farcaster Frames
 - 🌐 **Multi-Contract Support**: Backward compatible with V1/V2 NFTs
@@ -130,9 +130,9 @@ NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS="0x2e73081c0455a43f99a02d38a6c6a90b4d
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS_V2="0x415Df58904f56A159748476610B8830db2548158"
 NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS_V2="0x52e4212bd4085296168A7f880DfB6B646d52Fe61"
 
-# Pricing (2.0 CELO for both image generation and minting)
-NEXT_PUBLIC_CELO_MINT_PRICE="2.0"
-NEXT_PUBLIC_IMAGE_FEE="2.0"
+# Pricing
+NEXT_PUBLIC_CELO_MINT_PRICE="2.0"   # 2.0 CELO for NFT minting
+NEXT_PUBLIC_IMAGE_FEE="1.0"          # 1.0 CELO for image generation (promotional)
 
 # RPC URLs
 NEXT_PUBLIC_RPC_URL_CELO="https://forno.celo.org"
@@ -226,7 +226,7 @@ pnpm start
 - **Address**: `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3`
 - **Type**: Standard Contract
 - **Functions Used**:
-  - `createImagePayment()` - Pay 2.0 CELO for image generation
+  - `createImagePayment()` - Pay 1.0 CELO for image generation (promotional pricing)
   - `storeGenerationMetadata(uint256 paymentId, string metadataURI)` - Store fortune metadata on-chain
   - `markAsMinted(uint256 paymentId, uint256 tokenId)` - Mark fortune as minted
   - `getUserCollection(address user)` - Get user's fortunes and NFTs
@@ -437,7 +437,7 @@ If images don't load, the app automatically tries multiple IPFS gateways:
 Ensure you're connected to Celo Mainnet (Chain ID: 42220)
 
 ### Transaction Failures
-- Check CELO balance (need 2.0 CELO for minting)
+- Check CELO balance (need 1.0 CELO for image + 2.0 CELO for minting)
 - Verify network is Celo Mainnet
 - Check console for detailed error messages
 
