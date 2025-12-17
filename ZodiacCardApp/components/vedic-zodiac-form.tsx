@@ -18,6 +18,19 @@ import { useContractInteraction } from "@/hooks/useContractInteraction"
 import { SeasonalThemeSelector } from "@/components/seasonal-theme-selector"
 import { type SeasonalTheme, getDefaultTheme } from "@/lib/seasonal-themes"
 
+/**
+ * Vedic Zodiac Form Component
+ *
+ * Collects user birth date and generates fortune based on Vedic astrology (Nakshatra system).
+ * Supports seasonal themes (Classic, Winter Holidays, New Year) for image generation.
+ *
+ * Theme Integration:
+ * - selectedTheme state initialized with getDefaultTheme() (first available theme)
+ * - Theme passed to result page via URL parameter for image generation
+ * - Winter Holidays theme available during December
+ * - New Year theme available December 25 - January 7
+ */
+
 const IMAGE_PAYMENT_ABI = [
   {
     inputs: [],
@@ -40,6 +53,7 @@ export function VedicZodiacForm() {
   const [year, setYear] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState("")
+  // Seasonal theme state - defaults to first available theme (Winter Holidays in December)
   const [selectedTheme, setSelectedTheme] = useState<SeasonalTheme>(getDefaultTheme())
 
   // Auto-populate username from Farcaster context
@@ -111,13 +125,14 @@ export function VedicZodiacForm() {
       // Wait for transaction confirmation
       await waitForTransaction(hash)
 
-      // Navigate to result page with payment hash
+      // Navigate to result page with payment hash and selected seasonal theme
+      // Theme parameter enables Winter Holidays/New Year image generation modifiers
       const params = new URLSearchParams({
         username,
         sign: sign.name,
         zodiacType: "vedic",
         paymentHash: hash,
-        theme: selectedTheme,
+        theme: selectedTheme, // Passes theme to result page for buildSeasonalPrompt()
       })
       router.push(`/result?${params.toString()}`)
     } catch (err) {
@@ -225,7 +240,7 @@ export function VedicZodiacForm() {
         </div>
       )}
 
-      {/* Seasonal Theme Selector */}
+      {/* Seasonal Theme Selector - Winter Holidays available in December */}
       <SeasonalThemeSelector
         selectedTheme={selectedTheme}
         onThemeChange={setSelectedTheme}
