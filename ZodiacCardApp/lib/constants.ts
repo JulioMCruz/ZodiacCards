@@ -5,7 +5,7 @@ export const NFT_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS
 export const NFT_CONTRACT_ADDRESS_V2 = process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS_V2 as `0x${string}` | undefined
 
 // Payment fees (in CELO, 18 decimals)
-export const IMAGE_FEE = process.env.NEXT_PUBLIC_IMAGE_FEE || "2.0"
+export const IMAGE_FEE = process.env.NEXT_PUBLIC_IMAGE_FEE || "1.0"
 export const NFT_MINT_FEE = process.env.NEXT_PUBLIC_CELO_MINT_PRICE || "2.0"
 
 // Network configuration

@@ -30,7 +30,7 @@
 **V3 Payment Contract**:
 - **Address**: `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3`
 - [View on Celoscan](https://celoscan.io/address/0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3)
-- Image Generation Fee: **2.0 CELO**
+- Image Generation Fee: **1.0 CELO** (promotional pricing!)
 - **Status**: ✅ Active - All new fortune generations
 - **Features**: Gas-free metadata storage, NFT tracking
 
@@ -65,7 +65,7 @@
 |---------|------|---------|--------|----------|-------|
 | **V3** | NFT Proxy | `0x3ff2E08339588c594E6155Fd088f9668b2E7c775` | ✅ Active | 2.0 CELO | Clean state, dual functions |
 | **V3** | NFT Implementation | `0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b` | ✅ Active | - | UUPS upgradeable |
-| **V3** | Payment | `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3` | ✅ Active | 2.0 CELO | Gas-free storage |
+| **V3** | Payment | `0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3` | ✅ Active | 1.0 CELO | Gas-free storage, promotional |
 | **V2** | NFT Proxy | `0x415Df58904f56A159748476610B8830db2548158` | 🔒 Read-Only | 10.0 CELO | Corrupted state |
 | **V2** | Payment | `0x52e4212bd4085296168A7f880DfB6B646d52Fe61` | 🔒 Read-Only | 2.0 CELO | Legacy payments |
 | **V1** | NFT | [TBD] | 🔒 Historical | [TBD] | Original contract |
@@ -152,7 +152,7 @@ Zodiac Card introduces **Seasonal Themes** - exclusive visual styles that transf
 
 ### 🛒 Same Great Price
 
-All themes cost the same **2.0 CELO** for fortune generation + **2.0 CELO** for minting. The value comes from the limited-time availability and unique visual elements - not inflated pricing.
+All themes cost the same **1.0 CELO** for fortune generation + **2.0 CELO** for minting (total: 3.0 CELO). The value comes from the limited-time availability and unique visual elements - not inflated pricing.
 
 ## 🔒 Security
 

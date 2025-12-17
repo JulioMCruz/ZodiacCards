@@ -12,7 +12,7 @@
 - **Social Platform**: Farcaster Mini App with Frames integration
 - **AI Integration**: OpenAI GPT-4, Replicate Flux Pro
 - **Privacy**: Self Protocol (zero-knowledge proofs)
-- **Pricing**: 2.0 CELO per fortune + 2.0 CELO per mint
+- **Pricing**: 1.0 CELO per fortune + 2.0 CELO per mint (promotional pricing)
 
 ## Architecture
 
