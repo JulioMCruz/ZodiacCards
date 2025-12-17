@@ -20,6 +20,21 @@ import { useContractInteraction } from "@/hooks/useContractInteraction"
 import { zodiacImagePaymentV3Abi } from "@/lib/abis"
 import { type SeasonalTheme, buildSeasonalPrompt, getThemeById } from "@/lib/seasonal-themes"
 
+/**
+ * Result Page Component
+ *
+ * Displays generated fortune and AI-generated zodiac character image.
+ * Integrates seasonal theme system for Winter Holidays/New Year themed images.
+ *
+ * Seasonal Theme Flow:
+ * 1. Theme received via URL parameter from zodiac form (selectedTheme)
+ * 2. Base prompt constructed with zodiac sign and type details
+ * 3. buildSeasonalPrompt() injects theme-specific visual modifiers:
+ *    - Winter Holidays: Snowflakes, aurora lights, golden bokeh, frost patterns
+ *    - New Year: Fireworks, confetti, midnight blue & gold tones
+ * 4. Modified prompt sent to Replicate Flux Pro for themed image generation
+ * 5. Theme info stored in IPFS metadata via getThemeById() for NFT record
+ */
 export default function ResultPage() {
 
   // console.log('ResultPage')
@@ -33,6 +48,8 @@ export default function ResultPage() {
   const sign = searchParams.get("sign") || ""
   const zodiacType = searchParams.get("zodiacType") || ""
   const paymentHash = searchParams.get("paymentHash") || "" // Payment transaction hash
+  // Seasonal theme from URL parameter - determines image generation style
+  // Winter Holidays adds festive elements; New Year adds celebration elements
   const selectedTheme = (searchParams.get("theme") as SeasonalTheme) || 'regular'
 
   // Single ref to track generation state
@@ -87,8 +104,9 @@ export default function ResultPage() {
           paymentAmount: IMAGE_FEE,
           username: username || '',
           description: `A unique Zodiac fortune for ${username || 'you'}.`,
+          // Include seasonal theme in IPFS metadata for NFT historical record
           theme: selectedTheme,
-          themeInfo: getThemeById(selectedTheme),
+          themeInfo: getThemeById(selectedTheme), // Full theme details for metadata
         }),
       })
 
@@ -242,7 +260,11 @@ Both figures are surrounded by a mesmerizing cosmic backdrop featuring swirling 
 
 The artwork should maintain a perfect balance between anime aesthetics, zodiac mysticism, and blockchain cosmic symbolism, creating a captivating and meaningful representation of ${sign}'s spiritual energy in the digital age.`
 
-        // Apply seasonal theme modifiers
+        // Apply seasonal theme modifiers to base prompt
+        // buildSeasonalPrompt() injects theme-specific visual elements:
+        // - Winter Holidays: Snowflakes, aurora lights, golden bokeh, frost patterns
+        // - New Year: Fireworks, confetti, midnight blue & gold tones
+        // - Regular: No modifications (classic cosmic anime style)
         const prompt = buildSeasonalPrompt(basePrompt, selectedTheme)
 
         console.log(`🎨 Initiating image generation with theme: ${selectedTheme}`)
