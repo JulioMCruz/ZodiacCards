@@ -24,6 +24,11 @@ This is the frontend application for Zodiac Card, a Farcaster Mini App that comb
 - 🕉️ **Vedic Astrology**: Nakshatra system
 - 🌺 **Mayan Calendar**: Tzolkin day signs
 
+### Seasonal Themes
+- ⭐ **Classic Zodiac**: Traditional cosmic and anime style (always available)
+- 🎄 **Winter Holidays**: Festive December theme with snow, aurora lights & golden bokeh (December only)
+- 🎆 **New Year**: Celebration theme with fireworks & sparkles (December 25 - January 7)
+
 ### Advanced Features
 - 🔐 **Self Protocol**: Privacy-preserving date of birth verification using zero-knowledge proofs
 - 🎯 **Divvi Integration**: On-chain referral tracking
@@ -270,6 +275,59 @@ Professional fortune card images:
 - Generates high-quality artistic interpretations
 - Includes zodiac symbolism and mystical elements
 - Uploads to both IPFS and S3 for redundancy
+
+## 🎄 Seasonal Theme System
+
+The app features a seasonal theme system that allows users to generate limited-time themed fortune cards.
+
+### Theme Configuration
+[`lib/seasonal-themes.ts`](lib/seasonal-themes.ts)
+
+Central configuration for all seasonal themes:
+
+| Theme | ID | Availability | Visual Elements |
+|-------|-----|--------------|-----------------|
+| ⭐ Classic Zodiac | `regular` | Year-round | Traditional cosmic anime style |
+| 🎄 Winter Holidays | `winter-holidays` | December | Snowflakes, aurora lights, golden bokeh, frost patterns |
+| 🎆 New Year | `new-year` | Dec 25 - Jan 7 | Fireworks, confetti, midnight blue & gold tones |
+
+### Theme Selector Component
+[`components/seasonal-theme-selector.tsx`](components/seasonal-theme-selector.tsx)
+
+Reusable UI component integrated into all zodiac forms:
+- Displays all themes with availability status
+- Disabled state for out-of-season themes
+- Visual indicators for selected theme
+- Helper text when seasonal theme is active
+
+### How It Works
+
+1. **Theme Selection**: User selects a theme in any zodiac form
+2. **Prompt Modification**: `buildSeasonalPrompt()` injects theme-specific visual elements into the AI prompt
+3. **Image Generation**: Replicate Flux Pro generates themed artwork
+4. **Metadata Storage**: Theme info stored in IPFS metadata for historical record
+
+### Utility Functions
+
+```typescript
+// Check if a theme is currently available
+isThemeAvailable(theme: SeasonalTheme): boolean
+
+// Get theme configuration by ID
+getThemeById(themeId: SeasonalTheme): ThemeOption
+
+// Get all currently available themes
+getAvailableThemes(): ThemeOption[]
+
+// Build complete prompt with seasonal modifiers
+buildSeasonalPrompt(basePrompt: string, theme: SeasonalTheme): string
+```
+
+### Adding New Themes
+
+1. Add theme to `SEASONAL_THEMES` array in `lib/seasonal-themes.ts`
+2. Define availability logic in `isThemeAvailable()` function
+3. Theme automatically appears in all zodiac forms
 
 ## 🔐 Security Features
 
