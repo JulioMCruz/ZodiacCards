@@ -1,6 +1,24 @@
 import { NextResponse } from 'next/server'
 import pinataSDK from '@pinata/sdk'
 
+/**
+ * Upload Generation Metadata API
+ *
+ * Uploads fortune generation metadata to IPFS via Pinata for NFT records.
+ * Includes seasonal theme information for historical tracking of themed NFTs.
+ *
+ * Seasonal Theme Storage:
+ * - theme: Theme ID string ('regular', 'winter-holidays', 'new-year')
+ * - themeInfo: Full theme details object for display purposes
+ *   - Winter Holidays: Festive December theme with snow & lights
+ *   - New Year: Celebration theme with fireworks & sparkles
+ *
+ * The stored theme data enables:
+ * - NFT collection filtering by theme
+ * - Historical record of limited-time seasonal NFTs
+ * - Display of theme badge on collection items
+ */
+
 export const maxDuration = 60
 
 const pinata = new pinataSDK(
@@ -8,6 +26,10 @@ const pinata = new pinataSDK(
   process.env.PINATA_SECRET_KEY || ''
 )
 
+/**
+ * Request body for metadata upload
+ * Includes optional seasonal theme fields for Winter Holidays/New Year NFTs
+ */
 interface UploadMetadataRequest {
   fortuneText: string
   imageUrl: string
@@ -17,7 +39,9 @@ interface UploadMetadataRequest {
   paymentAmount: string
   username?: string
   description?: string
+  // Seasonal theme ID: 'regular' | 'winter-holidays' | 'new-year'
   theme?: string
+  // Full theme details for metadata display
   themeInfo?: {
     id: string
     name: string
@@ -50,7 +74,8 @@ export async function POST(req: Request) {
       )
     }
 
-    // Create metadata JSON object
+    // Create metadata JSON object for IPFS storage
+    // Includes seasonal theme info for NFT historical record and collection display
     const metadata = {
       fortuneText,
       imageUrl,
@@ -60,6 +85,9 @@ export async function POST(req: Request) {
       paymentAmount,
       username: username || '',
       description: description || '',
+      // Seasonal theme fields - defaults to 'regular' (Classic Zodiac) if not specified
+      // Winter Holidays ('winter-holidays') available in December
+      // New Year ('new-year') available December 25 - January 7
       theme: theme || 'regular',
       themeInfo: themeInfo || { id: 'regular', name: 'Classic Zodiac', description: 'Traditional cosmic and anime style', emoji: '⭐' },
       generatedAt: new Date().toISOString(),
