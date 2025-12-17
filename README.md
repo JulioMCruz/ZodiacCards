@@ -104,6 +104,55 @@ The integration with Farcaster's social protocol allows users to share their for
 - 💰 Pay with native CELO tokens - **2.0 CELO** per mint (reduced pricing)
 - 📱 Optimized for Farcaster Mini App experience
 - 🔄 Backward compatible - View all your V1 NFTs in collection
+- 🎄 **Seasonal Themes** - Limited-time collectible NFTs (see below)
+
+## 🎄 Seasonal Themes - Limited Edition NFTs
+
+<div align="center">
+  <h3>✨ Collect Rare, Time-Limited Fortune Cards ✨</h3>
+</div>
+
+Zodiac Card introduces **Seasonal Themes** - exclusive visual styles that transform your fortune cards into rare, limited-time collectibles. These themed NFTs are only available during specific periods, creating unique collector value and seasonal exclusivity.
+
+### 🌟 Why Seasonal Themes Matter
+
+| Benefit | Description |
+|---------|-------------|
+| **📈 Collector Value** | Limited availability creates scarcity - themed NFTs become rare collectibles after the season ends |
+| **🎁 Perfect Timing** | Mint holiday-themed fortunes as unique digital gifts for friends and family |
+| **🏆 Exclusive Ownership** | Own a piece of digital art that can never be minted again outside its season |
+| **📊 Historical Record** | Theme data is permanently stored in IPFS metadata - proof of when you minted |
+| **🎨 Stunning Visuals** | AI-generated images enhanced with seasonal elements: snow, fireworks, festive lights |
+
+### 🎨 Available Themes
+
+| Theme | Emoji | Availability | Visual Elements |
+|-------|-------|--------------|-----------------|
+| **Classic Zodiac** | ⭐ | Year-round | Traditional cosmic anime style with nebulae and constellations |
+| **Winter Holidays** | 🎄 | December 1-31 | Snowflakes, aurora lights, golden bokeh, frost patterns, festive red & green |
+| **New Year** | 🎆 | December 15 - January 20 | Fireworks, confetti, midnight blue & gold tones, celebration sparkles |
+
+### 🔥 Act Now - Limited Time!
+
+> **Current Season**: Check the app to see which themes are available today!
+>
+> Once the season ends, these themed NFTs can **never be minted again**. The theme information is permanently recorded in the NFT's IPFS metadata, proving the exact time and season when your fortune was created.
+
+### 💎 Theme Rarity Tiers
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    COLLECTIBLE RARITY                            │
+├─────────────────────────────────────────────────────────────────┤
+│  ⭐ Classic Zodiac     │  Common      │  Always available        │
+│  🎄 Winter Holidays    │  Rare        │  31 days/year (December) │
+│  🎆 New Year           │  Ultra Rare  │  37 days/year (Dec 15-Jan 20) │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 🛒 Same Great Price
+
+All themes cost the same **2.0 CELO** for fortune generation + **2.0 CELO** for minting. The value comes from the limited-time availability and unique visual elements - not inflated pricing.
 
 ## 🔒 Security
 
