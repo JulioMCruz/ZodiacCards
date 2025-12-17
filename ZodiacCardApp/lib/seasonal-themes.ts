@@ -51,7 +51,7 @@ export const SEASONAL_THEMES: ThemeOption[] = [
  * Theme Availability Schedule:
  * - 'regular': Always available (365 days/year)
  * - 'winter-holidays': December 1-31 (full month of December)
- * - 'new-year': December 25 - January 7 (14-day celebration window)
+ * - 'new-year': December 15 - January 20 (37-day extended celebration window)
  *
  * Availability Test Cases (Verified):
  * ┌─────────────────────┬─────────────┬────────────────────┬───────────┐
@@ -63,15 +63,15 @@ export const SEASONAL_THEMES: ThemeOption[] = [
  * │ winter-holidays     │ Dec 31      │ true (month === 12)│ ✓ Passes  │
  * │ winter-holidays     │ Jan 1       │ false              │ ✓ Passes  │
  * │ winter-holidays     │ Nov 30      │ false              │ ✓ Passes  │
- * │ new-year            │ Dec 25      │ true               │ ✓ Passes  │
- * │ new-year            │ Jan 7       │ true               │ ✓ Passes  │
- * │ new-year            │ Jan 8       │ false              │ ✓ Passes  │
- * │ new-year            │ Dec 24      │ false              │ ✓ Passes  │
+ * │ new-year            │ Dec 15      │ true               │ ✓ Passes  │
+ * │ new-year            │ Dec 14      │ false              │ ✓ Passes  │
+ * │ new-year            │ Jan 20      │ true               │ ✓ Passes  │
+ * │ new-year            │ Jan 21      │ false              │ ✓ Passes  │
  * └─────────────────────┴─────────────┴────────────────────┴───────────┘
  *
  * Business Logic:
  * - Winter Holidays theme creates limited-time collectible NFTs during December
- * - New Year theme bridges the holiday season across calendar years
+ * - New Year theme spans 37 days (Dec 15 - Jan 20) for extended celebration season
  * - Date-gating creates urgency and seasonal exclusivity for NFT collectors
  *
  * @param theme - The seasonal theme to check availability for
@@ -82,7 +82,7 @@ export const SEASONAL_THEMES: ThemeOption[] = [
  * isThemeAvailable('winter-holidays') // returns true
  *
  * @example
- * // During January 1-7 or December 25-31
+ * // During December 15-31 or January 1-20
  * isThemeAvailable('new-year') // returns true
  */
 export function isThemeAvailable(theme: SeasonalTheme): boolean {
@@ -105,9 +105,9 @@ export function isThemeAvailable(theme: SeasonalTheme): boolean {
 
     case 'new-year':
       // New Year theme - bridges December into January
-      // Available: December 25 through January 7 (14-day window)
+      // Available: December 15 through January 20 (37-day window)
       // Creates fireworks & celebration imagery for NFTs
-      return (month === 12 && day >= 25) || (month === 1 && day <= 7)
+      return (month === 12 && day >= 15) || (month === 1 && day <= 20)
 
     default:
       // Fallback for any unknown theme - allow by default
