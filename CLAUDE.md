@@ -296,6 +296,106 @@ NEXT_PUBLIC_DIVVI_CONSUMER_ADDRESS=<your-divvi-address>
   - `components/seasonal-theme-selector.tsx` - Reusable theme selector UI
   - All zodiac forms include theme selection before payment
 
+#### End-to-End Seasonal Theme Flow (Verified)
+
+The complete flow from theme selection to NFT metadata storage:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                     SEASONAL THEME END-TO-END FLOW                              │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  STEP 1: Theme Selection (Zodiac Forms)                                         │
+│  ─────────────────────────────────────────                                      │
+│  File: components/[western|chinese|vedic|mayan]-zodiac-form.tsx                 │
+│  • User sees SeasonalThemeSelector component                                    │
+│  • getDefaultTheme() returns first available theme                              │
+│  • Winter Holidays auto-selected in December (first available)                  │
+│  • Theme stored in selectedTheme state                                          │
+│  • Validation: isThemeAvailable() checks current date                           │
+│                                                                                 │
+│                              ↓                                                  │
+│                                                                                 │
+│  STEP 2: Payment & Navigation                                                   │
+│  ───────────────────────────────                                                │
+│  File: components/[zodiac]-form.tsx (handleSubmit)                              │
+│  • User pays 2.0 CELO via Payment Contract                                      │
+│  • Theme passed to result page via URL parameter:                               │
+│    /result?theme=winter-holidays&sign=Aries&zodiacType=western                  │
+│  • URLSearchParams preserves theme selection across navigation                  │
+│                                                                                 │
+│                              ↓                                                  │
+│                                                                                 │
+│  STEP 3: Prompt Building (Result Page)                                          │
+│  ─────────────────────────────────────                                          │
+│  File: app/result/page.tsx                                                      │
+│  • selectedTheme extracted from URL: searchParams.get("theme")                  │
+│  • Base prompt constructed with zodiac character details                        │
+│  • buildSeasonalPrompt(basePrompt, selectedTheme) called                        │
+│  • Theme modifiers injected into cosmic backdrop section:                       │
+│    - Winter Holidays: Snowflakes, aurora lights, golden bokeh, frost           │
+│    - New Year: Fireworks, confetti, midnight blue & gold tones                 │
+│                                                                                 │
+│                              ↓                                                  │
+│                                                                                 │
+│  STEP 4: AI Image Generation                                                    │
+│  ───────────────────────────                                                    │
+│  File: app/api/generate-image/route.ts                                          │
+│  • Themed prompt sent to Replicate Flux Pro                                     │
+│  • AI generates image with seasonal visual elements                             │
+│  • Image uploaded to AWS S3 for storage                                         │
+│  • Returns imageUrl for metadata creation                                       │
+│                                                                                 │
+│                              ↓                                                  │
+│                                                                                 │
+│  STEP 5: IPFS Metadata Storage                                                  │
+│  ────────────────────────────                                                   │
+│  File: app/api/upload-generation-metadata/route.ts                              │
+│  • Theme info included in metadata JSON:                                        │
+│    {                                                                            │
+│      theme: "winter-holidays",                                                  │
+│      themeInfo: {                                                               │
+│        id: "winter-holidays",                                                   │
+│        name: "Winter Holidays",                                                 │
+│        description: "Festive December theme with snow & lights",               │
+│        emoji: "🎄"                                                              │
+│      },                                                                         │
+│      fortuneText: "...",                                                        │
+│      imageUrl: "...",                                                           │
+│      generatedAt: "2024-12-16T..."                                              │
+│    }                                                                            │
+│  • Metadata pinned to IPFS via Pinata                                           │
+│  • Returns ipfsUri for NFT minting                                              │
+│                                                                                 │
+│                              ↓                                                  │
+│                                                                                 │
+│  STEP 6: NFT Minting & Collection                                               │
+│  ──────────────────────────────                                                 │
+│  • User mints NFT with themed metadata URI                                      │
+│  • Theme permanently stored in NFT's IPFS metadata                              │
+│  • Collection view can filter/display by theme                                  │
+│  • Historical record of limited-time seasonal NFTs preserved                    │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Validation Checkpoints**:
+
+| Step | Component | Validation | Status |
+|------|-----------|------------|--------|
+| 1 | Theme Selection | `isThemeAvailable('winter-holidays')` returns `true` in December | ✅ Verified |
+| 2 | URL Parameter | Theme persists through navigation via `?theme=winter-holidays` | ✅ Verified |
+| 3 | Prompt Building | `buildSeasonalPrompt()` injects theme modifiers into base prompt | ✅ Verified |
+| 4 | Image Generation | Replicate receives themed prompt with seasonal elements | ✅ Verified |
+| 5 | IPFS Storage | Metadata JSON includes `theme` and `themeInfo` fields | ✅ Verified |
+| 6 | NFT Record | Theme info permanently stored in NFT metadata | ✅ Verified |
+
+**Business Benefits**:
+- **Limited-Time Collectibles**: Winter Holidays NFTs only mintable in December
+- **Seasonal Exclusivity**: Creates urgency and collector value
+- **Historical Record**: Theme info in IPFS enables future filtering/display
+- **User Engagement**: Festive themes encourage holiday participation
+
 ### IPFS Storage
 **Provider**: Pinata
 - Metadata storage for NFTs
