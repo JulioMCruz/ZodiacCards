@@ -1,108 +1,189 @@
-# ✅ ZodiacCardApp - Celo Mainnet Configuration Complete
+# ZodiacCardApp - Frontend Configuration Guide
 
-## 🎯 Configuration Summary
+## Configuration Summary
 
-All frontend environment files have been updated with the deployed Celo mainnet contract addresses.
+Frontend environment configuration for V3 contracts on Celo Mainnet with promotional pricing.
 
 ---
 
-## 📋 Updated Files
+## Current Contract Addresses (V3 - Active)
 
-### 1. `.env` (Development)
+### Production Configuration
+
 ```bash
-NEXT_PUBLIC_CHAIN_ID="42220" # Celo Mainnet
-NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
+# Network
+NEXT_PUBLIC_CHAIN_ID="42220"                    # Celo Mainnet
+NEXT_PUBLIC_CELO_RPC_URL="https://forno.celo.org"
+
+# V3 Contracts (Active)
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x3ff2E08339588c594E6155Fd088f9668b2E7c775"
+NEXT_PUBLIC_PROXY_CONTRACT_ADDRESS="0x3ff2E08339588c594E6155Fd088f9668b2E7c775"
+NEXT_PUBLIC_IMPLEMENTATION_CONTRACT_ADDRESS="0x3b433190AD6dB27461f6a118AcfcDFfa0E1D491b"
+NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS="0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3"
+
+# V2 Contracts (Legacy - Read-only)
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS_V2="0x415Df58904f56A159748476610B8830db2548158"
+NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS_V2="0x52e4212bd4085296168A7f880DfB6B646d52Fe61"
+
+# Pricing (Promotional)
+NEXT_PUBLIC_IMAGE_FEE="1.0"                     # 1.0 CELO per fortune
+NEXT_PUBLIC_CELO_MINT_PRICE="2.0"               # 2.0 CELO per mint
 ```
 
-### 2. `.env.production` (Production)
-```bash
-NEXT_PUBLIC_CHAIN_ID="42220" # Celo Mainnet
-NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
+---
+
+## Pricing Structure
+
+### Current Pricing (December 2025 Promotion)
+
+| Step | Action | Cost | Contract |
+|------|--------|------|----------|
+| 1 | Generate Fortune Image | **1.0 CELO** | Payment V3 (`0x2e73...51f3`) |
+| 2 | Mint NFT | **2.0 CELO** | NFT V3 (`0x3ff2...c775`) |
+| **Total** | Complete flow | **3.0 CELO** | - |
+
+### Fee Configuration
+
+The image generation fee is configurable via the Payment Contract:
+
+```solidity
+// Owner can update fee
+function setImageFee(uint256 newFee) external onlyOwner
 ```
 
-### 3. `.env.example` (Template)
-Updated with mainnet addresses as default values
+Current on-chain fee: **1.0 CELO** (updated December 2025)
 
 ---
 
-## ⚙️ Key Configuration Changes
+## Contract Evolution
 
-### Network Configuration
-- **Chain ID**: Changed from `44787` (Alfajores) → `42220` (Celo Mainnet)
-- **RPC URL**: `https://forno.celo.org`
-- **Network**: Celo Mainnet
+| Version | Status | NFT Contract | Payment Contract | Image Fee | Mint Fee |
+|---------|--------|--------------|------------------|-----------|----------|
+| **V3** | ✅ Active | `0x3ff2...c775` | `0x2e73...51f3` | 1.0 CELO | 2.0 CELO |
+| **V2** | 🔒 Legacy | `0x415D...8158` | `0x52e4...e61` | 2.0 CELO | 10.0 CELO |
 
-### Contract Addresses
-- **Proxy (Main Contract)**: `0x415Df58904f56A159748476610B8830db2548158`
-- **Implementation**: `0xd1846BE5C31604496C63be66CE33Af67d68ecf84`
-
-### Pricing
-- **Mint Fee**: Changed from `10.0 CELO` → `10.0 CELO` (matches deployed contract)
+**Note**: V2 contracts are read-only for backward compatibility (viewing legacy NFTs in collection).
 
 ---
 
-## 🔧 Wagmi Configuration Verification
+## Seasonal Themes Configuration
 
-The `lib/wagmi.ts` configuration is already set up correctly:
+### Theme Availability
 
-✅ **Auto-detects network** based on `NEXT_PUBLIC_CHAIN_ID`
-✅ **Supports Celo mainnet** (chain ID 42220)
-✅ **Supports Celo Alfajores** (chain ID 44787)
-✅ **Farcaster Frame connector** enabled
-✅ **WalletConnect v2** configured
-✅ **Custom RPC URLs** from environment variables
+| Theme | Availability | Dates |
+|-------|-------------|-------|
+| Classic Zodiac (⭐) | Always | Year-round |
+| Winter Holidays (🎄) | December | Dec 1 - Dec 31 |
+| New Year (🎆) | Holiday Season | Dec 15 - Jan 20 |
+
+### Theme Implementation
+
+Themes are implemented client-side via prompt modifiers in `lib/seasonal-themes.ts`:
 
 ```typescript
-// Automatically selects chain based on NEXT_PUBLIC_CHAIN_ID
+// Check theme availability
+isThemeAvailable('winter-holidays')  // true in December
+isThemeAvailable('new-year')         // true Dec 15 - Jan 20
+
+// Build themed prompt
+buildSeasonalPrompt(basePrompt, selectedTheme)
+```
+
+---
+
+## Wagmi Configuration
+
+The `lib/wagmi.ts` configuration auto-detects network based on environment:
+
+```typescript
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "44787")
 const targetChain = TARGET_CHAIN_ID === 42220 ? celo : celoAlfajores
 ```
 
+### Supported Connectors
+
+- Farcaster Frame connector (primary)
+- WalletConnect v2
+- Injected wallets (MetaMask, Valora, etc.)
+
 ---
 
-## 🚀 Testing Your Frontend
+## Testing Your Configuration
 
 ### 1. Start Development Server
 
 ```bash
 cd ZodiacCardApp
-npm run dev
-# or
-yarn dev
+pnpm dev
 ```
 
 ### 2. Verify Contract Connection
 
-Open browser console and check:
+Open browser console:
 
 ```javascript
-// Check current chain
 console.log('Chain ID:', window.ethereum?.chainId)
-
 // Should show: 0xa4ec (42220 in hex)
 ```
 
-### 3. Test Wallet Connection
+### 3. Test Payment Flow
 
-1. Click "Connect Wallet" in your app
-2. Approve connection to Celo Mainnet
-3. Verify wallet shows correct network
-4. Check contract address is loaded
-
-### 4. Test Minting (Small Amount)
-
-1. Enter birth details
-2. Generate fortune
-3. Click "Mint NFT"
-4. Verify mint fee shows: **10.0 CELO**
-5. Confirm transaction
-6. Wait for transaction confirmation
+1. Connect wallet to Celo Mainnet
+2. Select zodiac type and enter birth details
+3. Choose seasonal theme (if available)
+4. Click "Reveal My Fortune" - verify shows **1.0 CELO**
+5. After image generation, click "Mint NFT" - verify shows **2.0 CELO**
 
 ---
 
-## 🔍 Troubleshooting
+## Environment Variables Reference
+
+### Required Variables
+
+```bash
+# Network
+NEXT_PUBLIC_CHAIN_ID="42220"
+NEXT_PUBLIC_CELO_RPC_URL="https://forno.celo.org"
+
+# V3 Contracts
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x3ff2E08339588c594E6155Fd088f9668b2E7c775"
+NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS="0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3"
+
+# Pricing
+NEXT_PUBLIC_IMAGE_FEE="1.0"
+NEXT_PUBLIC_CELO_MINT_PRICE="2.0"
+
+# WalletConnect
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="your-project-id"
+```
+
+### Optional Variables
+
+```bash
+# V2 Legacy Support
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS_V2="0x415Df58904f56A159748476610B8830db2548158"
+NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS_V2="0x52e4212bd4085296168A7f880DfB6B646d52Fe61"
+
+# Self Protocol
+NEXT_PUBLIC_SELF_APP_NAME="Zodiac Card"
+NEXT_PUBLIC_SELF_SCOPE="zodiac-card-app"
+
+# Divvi Referral
+NEXT_PUBLIC_DIVVI_CONSUMER_ADDRESS="your-divvi-address"
+```
+
+---
+
+## Troubleshooting
+
+### Issue: Button Shows Wrong Price
+
+**Problem**: "Reveal My Fortune" shows 2.0 CELO instead of 1.0 CELO
+
+**Solution**:
+1. Check `NEXT_PUBLIC_IMAGE_FEE` in `.env.local` (should be "1.0")
+2. For Vercel: Update environment variable in dashboard
+3. Redeploy the frontend
 
 ### Issue: Wrong Network
 
@@ -111,11 +192,11 @@ console.log('Chain ID:', window.ethereum?.chainId)
 **Solution**:
 ```bash
 # Verify .env file
-cat .env | grep CHAIN_ID
+cat .env.local | grep CHAIN_ID
 # Should show: NEXT_PUBLIC_CHAIN_ID="42220"
 
 # Restart dev server
-npm run dev
+pnpm dev
 ```
 
 ### Issue: Contract Not Found
@@ -124,109 +205,30 @@ npm run dev
 
 **Solution**:
 ```bash
-# Verify contract address in .env
-cat .env | grep NFT_CONTRACT
-# Should show: NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
+# Verify V3 contract address
+cat .env.local | grep NFT_CONTRACT_ADDRESS
+# Should show V3: 0x3ff2E08339588c594E6155Fd088f9668b2E7c775
 
 # Check on Celoscan
-open https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158
+open https://celoscan.io/address/0x3ff2E08339588c594E6155Fd088f9668b2E7c775
 ```
 
-### Issue: Incorrect Mint Fee
+### Issue: Seasonal Theme Not Available
 
-**Problem**: UI shows wrong mint price
+**Problem**: Winter Holidays or New Year theme not showing
 
 **Solution**:
-```bash
-# Update mint price in .env
-NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
-
-# Restart dev server
-```
-
-### Issue: RPC Connection Error
-
-**Problem**: "Cannot connect to network"
-
-**Solution**:
-```bash
-# Verify RPC URL
-cat .env | grep RPC_URL_CELO
-# Should show: NEXT_PUBLIC_RPC_URL_CELO="https://forno.celo.org"
-
-# Test RPC manually
-curl -X POST https://forno.celo.org \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
-# Should return: {"jsonrpc":"2.0","id":1,"result":"0xa4ec"}
-```
+- Winter Holidays: Only available in December
+- New Year: Only available Dec 15 - Jan 20
+- Check system date/timezone settings
 
 ---
 
-## 📱 Environment Variables Reference
+## Important Links
 
-### Required for Frontend
-
-```bash
-# Network Configuration
-NEXT_PUBLIC_CHAIN_ID="42220"
-NEXT_PUBLIC_RPC_URL_CELO="https://forno.celo.org"
-
-# Contract Addresses
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS="0x415Df58904f56A159748476610B8830db2548158"
-
-# Pricing
-NEXT_PUBLIC_CELO_MINT_PRICE="10.0"
-
-# WalletConnect
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="your-project-id"
-
-# Site Configuration
-NEXT_PUBLIC_SITE_URL="https://your-domain.com"
-```
-
-### Optional (Already Configured)
-
-```bash
-# IPFS/Storage
-PINATA_API_KEY="your-key"
-AWS_ACCESS_KEY_ID="your-key"
-
-# AI
-OPENAI_API_KEY="your-key"
-```
-
----
-
-## 🎨 Frontend Features Ready
-
-### ✅ Wallet Connection
-- Farcaster Frame connector
-- WalletConnect v2
-- Injected wallets (MetaMask, etc.)
-
-### ✅ Network Switching
-- Auto-detects Celo mainnet (42220)
-- Prompts user to switch if wrong network
-
-### ✅ NFT Minting
-- Shows correct 10.0 CELO price
-- Connects to deployed contract
-- Uploads metadata to IPFS
-- Generates on-chain transaction
-
-### ✅ Transaction Tracking
-- Real-time transaction status
-- Block confirmations
-- Error handling
-- Success notifications
-
----
-
-## 🔗 Important Links
-
-**Contract on Celoscan**:
-https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158
+**V3 Contracts on Celoscan**:
+- NFT: https://celoscan.io/address/0x3ff2E08339588c594E6155Fd088f9668b2E7c775
+- Payment: https://celoscan.io/address/0x2e73081c0455a43f99a02d38a6c6a90b4d3b51f3
 
 **Celo Network Info**:
 - Chain ID: 42220
@@ -234,45 +236,22 @@ https://celoscan.io/address/0x415Df58904f56A159748476610B8830db2548158
 - Explorer: https://celoscan.io
 - Native Token: CELO (18 decimals)
 
-**Farcaster Frame Integration**:
-- Mini Apps: https://miniapps.farcaster.xyz
-- Frame SDK: https://docs.farcaster.xyz/developers/frames
+---
+
+## Configuration Checklist
+
+Before deployment:
+
+- [ ] Verify `NEXT_PUBLIC_IMAGE_FEE="1.0"` (promotional pricing)
+- [ ] Verify `NEXT_PUBLIC_CELO_MINT_PRICE="2.0"`
+- [ ] Verify V3 contract addresses are set
+- [ ] Test fortune generation shows 1.0 CELO
+- [ ] Test NFT minting shows 2.0 CELO
+- [ ] Verify seasonal themes appear correctly
+- [ ] Test on mobile devices
+- [ ] Set all environment variables in Vercel
 
 ---
 
-## 📊 Production Deployment Checklist
-
-Before deploying to production:
-
-- [ ] Verify `.env.production` has correct values
-- [ ] Test minting on mainnet with small amount (1 CELO)
-- [ ] Verify NFT appears in wallet after minting
-- [ ] Check IPFS metadata loads correctly
-- [ ] Test on mobile devices (Celo is mobile-first)
-- [ ] Verify Farcaster Frame integration works
-- [ ] Set up error monitoring (Sentry, etc.)
-- [ ] Configure analytics (PostHog, etc.)
-- [ ] Test with different wallets (Valora, MetaMask, etc.)
-- [ ] Verify all environment variables are set in hosting platform
-
----
-
-## 🎉 Ready to Launch!
-
-Your ZodiacCardApp frontend is now configured for Celo mainnet and ready to mint NFTs!
-
-**Contract**: `0x415Df58904f56A159748476610B8830db2548158`
-**Network**: Celo Mainnet (42220)
-**Mint Fee**: 10.0 CELO
-
-### Next Steps:
-
-1. **Test locally**: `cd ZodiacCardApp && npm run dev`
-2. **Test minting**: Mint a test NFT with 10.0 CELO
-3. **Deploy**: Deploy to Vercel/Netlify with production env vars
-4. **Monitor**: Set up monitoring and analytics
-
----
-
-**Configuration completed**: ✅
-**Status**: Ready for production 🚀
+**Last Updated**: December 2025
+**Status**: V3 Active with Promotional Pricing

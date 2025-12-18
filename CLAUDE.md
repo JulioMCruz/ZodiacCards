@@ -190,7 +190,7 @@ NEXT_PUBLIC_IMAGE_PAYMENT_CONTRACT_ADDRESS_V2=0x52e4212bd4085296168A7f880DfB6B64
 
 # Pricing
 NEXT_PUBLIC_CELO_MINT_PRICE=2.0
-NEXT_PUBLIC_IMAGE_FEE=2.0
+NEXT_PUBLIC_IMAGE_FEE=1.0
 
 # External Services
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-project-id>
@@ -234,8 +234,8 @@ NEXT_PUBLIC_DIVVI_CONSUMER_ADDRESS=<your-divvi-address>
    → Theme availability validated by date
    → Theme parameter added to generation request
 
-4. Fortune Generation (2.0 CELO)
-   User → Payment Contract → createImagePayment(2.0 CELO)
+4. Fortune Generation (1.0 CELO)
+   User → Payment Contract → payForImage(1.0 CELO)
    → API → buildSeasonalPrompt(basePrompt, theme)
    → Replicate Flux Pro (with seasonal modifiers)
    → AWS S3 → IPFS (with theme metadata)
@@ -286,7 +286,7 @@ NEXT_PUBLIC_DIVVI_CONSUMER_ADDRESS=<your-divvi-address>
 - **Theme Options**:
   - **Classic Zodiac** (⭐): Traditional cosmic and anime style (always available)
   - **Winter Holidays** (🎄): Festive December theme with snow & lights (December only)
-  - **New Year** (🎆): Celebration theme with fireworks & sparkles (Dec 25 - Jan 7)
+  - **New Year** (🎆): Celebration theme with fireworks & sparkles (Dec 15 - Jan 20)
 - **Implementation**: Client-side prompt modifiers appended to base image generation prompt
 - **Availability**: Time-based theme activation using `isThemeAvailable()` function
 - **Metadata**: Theme selection stored in IPFS metadata for each NFT
@@ -319,7 +319,7 @@ The complete flow from theme selection to NFT metadata storage:
 │  STEP 2: Payment & Navigation                                                   │
 │  ───────────────────────────────                                                │
 │  File: components/[zodiac]-form.tsx (handleSubmit)                              │
-│  • User pays 2.0 CELO via Payment Contract                                      │
+│  • User pays 1.0 CELO via Payment Contract                                      │
 │  • Theme passed to result page via URL parameter:                               │
 │    /result?theme=winter-holidays&sign=Aries&zodiacType=western                  │
 │  • URLSearchParams preserves theme selection across navigation                  │
@@ -529,7 +529,7 @@ npx hardhat test
 
 ### When Working on Seasonal Themes
 - Theme modifiers are client-side only (no contract changes)
-- All themes use same 2.0 CELO pricing
+- All themes use same 1.0 CELO pricing (promotional)
 - Use `buildSeasonalPrompt()` to inject theme modifiers into base prompt
 - Theme modifiers insert before final "balance" statement in prompt
 - Validate theme availability with `isThemeAvailable()` before activation
@@ -541,7 +541,7 @@ npx hardhat test
 - Image generation: ~$0.30 per fortune (Replicate)
 - IPFS storage: ~$0.01 per upload (Pinata)
 - Gas costs: ~0.001 CELO per transaction
-- User pays: 2.0 CELO per fortune + 2.0 CELO per mint
+- User pays: 1.0 CELO per fortune + 2.0 CELO per mint (3.0 CELO total)
 
 ### Performance Targets
 - Fortune generation: <30s
@@ -580,14 +580,15 @@ npx hardhat test
 - **October 2025**: V1 deployment, basic minting
 - **November 2025**: V2 deployment, payment system upgrade
 - **December 3, 2025**: V3 deployment, clean state, reduced pricing
-- **Current**: Active development, 2.0 CELO pricing, Self Protocol integration
+- **December 2025**: Promotional pricing (1.0 CELO image fee), seasonal themes
+- **Current**: Active development, 1.0 CELO image + 2.0 CELO mint pricing, Self Protocol integration
 
 ## Troubleshooting
 
 **Common Issues**:
 
 1. **"Transaction reverted"**
-   - Check CELO balance (need >2.0 CELO + gas)
+   - Check CELO balance (need >1.0 CELO for image or >2.0 CELO for mint + gas)
    - Verify contract addresses in `lib/constants.ts`
    - Check network (should be Celo Mainnet 42220)
 
