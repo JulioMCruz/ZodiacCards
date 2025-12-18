@@ -13,10 +13,20 @@ This is the frontend application for Zodiac Card, a Farcaster Mini App that comb
 - 🔮 **AI Fortune Generation**: Powered by OpenAI GPT-4 via OpenRouter
 - 🖼️ **AI Image Generation**: Flux Pro via Replicate for high-quality fortune card images
 - 💳 **Two-Tier Payment System**:
-  - Image Generation: 1.0 CELO (via Payment Contract) - *Promotional pricing!*
+  - Image Generation: 1.0 CELO (via Payment Contract) - *🎄 Holiday Promotional pricing!*
   - NFT Minting: 2.0 CELO (via NFT Contract)
 - 📱 **Farcaster Mini App**: Native integration with Farcaster Frames
 - 🌐 **Multi-Contract Support**: Backward compatible with V1/V2 NFTs
+
+### 💰 Current Pricing (Holiday Promotion)
+
+| Step | Action | Cost | Contract |
+|------|--------|------|----------|
+| 1 | Generate Fortune & Image | **1.0 CELO** | Payment Contract V3 |
+| 2 | Mint NFT | **2.0 CELO** | NFT Contract V3 |
+| **Total** | Complete Zodiac Card | **3.0 CELO** | - |
+
+> 🎄 **Holiday Special**: Image generation fee reduced from 2.0 CELO to 1.0 CELO for the holiday season!
 
 ### Zodiac Systems
 - ⭐ **Western Zodiac**: 12 zodiac signs based on birth date
@@ -27,7 +37,7 @@ This is the frontend application for Zodiac Card, a Farcaster Mini App that comb
 ### Seasonal Themes
 - ⭐ **Classic Zodiac**: Traditional cosmic and anime style (always available)
 - 🎄 **Winter Holidays**: Festive December theme with snow, aurora lights & golden bokeh (December only)
-- 🎆 **New Year**: Celebration theme with fireworks & sparkles (December 25 - January 7)
+- 🎆 **New Year**: Celebration theme with fireworks & sparkles (December 15 - January 20)
 
 ### Advanced Features
 - 🔐 **Self Protocol**: Privacy-preserving date of birth verification using zero-knowledge proofs
@@ -65,6 +75,133 @@ This is the frontend application for Zodiac Card, a Farcaster Mini App that comb
 ### Farcaster Integration
 - **Farcaster Frames SDK v0.0.34**: Mini App functionality
 - **Frame Metadata**: Social sharing optimization
+
+## 📊 Architecture Diagrams
+
+### Application Architecture
+
+```mermaid
+graph TB
+    subgraph "Frontend - Next.js 15"
+        UI[🎨 React UI]
+        Forms[📝 Zodiac Forms]
+        Theme[🎄 Theme Selector]
+        Collection[📚 Collection View]
+    end
+
+    subgraph "API Routes"
+        Fortune[/api/generate-fortune]
+        Image[/api/generate-image]
+        IPFS[/api/upload-to-ipfs]
+        S3[/api/upload-to-s3]
+        Verify[/api/verify-self]
+        Frame[/api/frame]
+    end
+
+    subgraph "External Services"
+        OpenRouter[🤖 OpenRouter GPT-4]
+        Replicate[🖼️ Replicate Flux Pro]
+        Pinata[📌 Pinata IPFS]
+        AWS[☁️ AWS S3]
+        Self[🔐 Self Protocol]
+    end
+
+    subgraph "Celo Blockchain"
+        NFT[NFT Contract V3<br/>0x3ff2...c775]
+        Payment[Payment Contract V3<br/>0x2e73...51f3<br/>1.0 CELO]
+    end
+
+    UI --> Forms
+    Forms --> Theme
+    Forms --> Fortune
+    Fortune --> OpenRouter
+    Forms --> Payment
+    Payment --> Image
+    Image --> Replicate
+    Image --> S3
+    Image --> IPFS
+    S3 --> AWS
+    IPFS --> Pinata
+    UI --> Verify
+    Verify --> Self
+    Collection --> NFT
+    Collection --> Payment
+    UI --> Frame
+```
+
+### User Flow - Fortune Generation & Minting
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant F as 📝 Zodiac Form
+    participant T as 🎄 Theme Selector
+    participant P as 💳 Payment Contract
+    participant AI as 🤖 AI Services
+    participant S as 📦 Storage
+    participant N as 🎴 NFT Contract
+
+    Note over U,N: Step 1: Select Zodiac System & Theme
+    U->>F: Choose zodiac system
+    U->>F: Enter birth date
+    U->>T: Select theme (Classic/Winter/New Year)
+    T-->>F: Theme validated & applied
+
+    Note over U,N: Step 2: Pay for Image Generation (1.0 CELO)
+    U->>P: payForImage() + 1.0 CELO
+    P-->>U: Return paymentId
+
+    Note over U,N: Step 3: Generate Fortune & Image
+    U->>AI: Generate fortune text (GPT-4)
+    AI-->>U: Fortune text
+    U->>AI: Generate image (Flux Pro + theme modifiers)
+    AI-->>U: Themed fortune card image
+
+    Note over U,N: Step 4: Upload to Storage
+    U->>S: Upload image to S3
+    S-->>U: Image URL
+    U->>S: Upload metadata to IPFS (with theme info)
+    S-->>U: IPFS URI
+    U->>P: storeGeneration(paymentId, ipfsUri)
+
+    Note over U,N: Step 5: Mint NFT (2.0 CELO)
+    U->>N: mintFromImagePayment() + 2.0 CELO
+    N-->>U: tokenId
+    U->>P: markAsMinted(paymentId, tokenId)
+    P-->>U: ✅ Complete!
+```
+
+### Seasonal Theme Flow
+
+```mermaid
+graph LR
+    subgraph "Theme Selection"
+        A[User Opens Form] --> B{Check Date}
+        B -->|Any Time| C[⭐ Classic Available]
+        B -->|December| D[🎄 Winter Holidays Available]
+        B -->|Dec 15 - Jan 20| E[🎆 New Year Available]
+    end
+
+    subgraph "Prompt Building"
+        C --> F[Base Prompt]
+        D --> G[Base + Winter Modifiers]
+        E --> H[Base + New Year Modifiers]
+        F --> I[AI Image Generation]
+        G --> I
+        H --> I
+    end
+
+    subgraph "Modifiers Applied"
+        G -.->|Adds| J["❄️ Snowflakes<br/>🌌 Aurora lights<br/>✨ Golden bokeh<br/>🧊 Frost patterns"]
+        H -.->|Adds| K["🎆 Fireworks<br/>🎊 Confetti<br/>🌙 Midnight blue<br/>⭐ Gold tones"]
+    end
+
+    subgraph "Output"
+        I --> L[🖼️ Themed Fortune Card]
+        L --> M[📝 IPFS Metadata<br/>includes theme info]
+        M --> N[🎴 Minted NFT]
+    end
+```
 
 ## 🏗️ Project Structure
 
@@ -289,7 +426,7 @@ Central configuration for all seasonal themes:
 |-------|-----|--------------|-----------------|
 | ⭐ Classic Zodiac | `regular` | Year-round | Traditional cosmic anime style |
 | 🎄 Winter Holidays | `winter-holidays` | December | Snowflakes, aurora lights, golden bokeh, frost patterns |
-| 🎆 New Year | `new-year` | Dec 25 - Jan 7 | Fireworks, confetti, midnight blue & gold tones |
+| 🎆 New Year | `new-year` | Dec 15 - Jan 20 | Fireworks, confetti, midnight blue & gold tones |
 
 ### Theme Selector Component
 [`components/seasonal-theme-selector.tsx`](components/seasonal-theme-selector.tsx)
@@ -302,10 +439,25 @@ Reusable UI component integrated into all zodiac forms:
 
 ### How It Works
 
-1. **Theme Selection**: User selects a theme in any zodiac form
-2. **Prompt Modification**: `buildSeasonalPrompt()` injects theme-specific visual elements into the AI prompt
-3. **Image Generation**: Replicate Flux Pro generates themed artwork
-4. **Metadata Storage**: Theme info stored in IPFS metadata for historical record
+```mermaid
+graph TD
+    A[1️⃣ User selects theme in zodiac form] --> B[2️⃣ isThemeAvailable checks date]
+    B -->|Available| C[3️⃣ Theme applied to form state]
+    B -->|Unavailable| D[Theme disabled in UI]
+    C --> E[4️⃣ User pays 1.0 CELO]
+    E --> F[5️⃣ buildSeasonalPrompt adds modifiers]
+    F --> G[6️⃣ Flux Pro generates themed image]
+    G --> H[7️⃣ Theme info stored in IPFS metadata]
+    H --> I[8️⃣ NFT minted with theme record]
+```
+
+**Detailed Steps:**
+
+1. **Theme Selection**: User selects a theme in any zodiac form (Western, Chinese, Vedic, or Mayan)
+2. **Availability Check**: `isThemeAvailable()` validates theme based on current date
+3. **Prompt Modification**: `buildSeasonalPrompt()` injects theme-specific visual elements into the AI prompt
+4. **Image Generation**: Replicate Flux Pro generates themed artwork with seasonal modifiers
+5. **Metadata Storage**: Theme info permanently stored in IPFS metadata for historical record and collection filtering
 
 ### Utility Functions
 
