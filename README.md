@@ -190,23 +190,25 @@ graph TB
         FC[Farcaster SDK]
         WC[Wallet Connection<br/>Wagmi v2 + Viem v2]
         SELF[Self Protocol SDK<br/>ZK Proofs]
+        THEME[Seasonal Theme Selector<br/>🎄 Winter | 🎆 New Year | ⭐ Classic]
     end
 
     subgraph Backend["Backend - Next.js API Routes"]
         API[API Routes]
         Fortune[Fortune Generator<br/>Replicate Flux Pro]
+        PROMPT[Seasonal Prompt Builder<br/>Theme Modifiers]
         IPFS_API[IPFS Upload<br/>Pinata]
         S3[AWS S3 Storage]
     end
 
     subgraph Blockchain["Celo Mainnet - Smart Contracts"]
-        PaymentV3[Payment Contract V3<br/>0x2e73...51f3]
-        NFTV3[NFT Contract V3<br/>0x3ff2...c775]
+        PaymentV3[Payment Contract V3<br/>0x2e73...51f3<br/>1.0 CELO Promotional]
+        NFTV3[NFT Contract V3<br/>0x3ff2...c775<br/>2.0 CELO Mint]
         NFTV2[NFT Contract V2<br/>0x415D...8158<br/>Legacy Read-Only]
     end
 
     subgraph External["External Services"]
-        IPFS[IPFS Network<br/>Metadata Storage]
+        IPFS[IPFS Network<br/>Metadata + Theme Storage]
         Divvi[Divvi Protocol<br/>Referral Tracking]
         Blockscout[Blockscout API<br/>NFT Indexing]
     end
@@ -214,12 +216,15 @@ graph TB
     UI --> FC
     UI --> WC
     UI --> SELF
+    UI --> THEME
     FC --> API
     WC --> PaymentV3
     WC --> NFTV3
     SELF --> API
+    THEME --> PROMPT
 
-    API --> Fortune
+    API --> PROMPT
+    PROMPT --> Fortune
     API --> IPFS_API
     API --> S3
 
@@ -267,17 +272,25 @@ sequenceDiagram
         User->>UI: Manually Enter Birth Details
     end
 
-    Note over User,BS: Step 2: Fortune Generation (2.0 CELO)
+    Note over User,BS: Step 2: Theme Selection (Seasonal)
+    UI->>User: Display Available Themes
+    Note over UI: ⭐ Classic (Always)<br/>🎄 Winter Holidays (December)<br/>🎆 New Year (Dec 15 - Jan 20)
+    User->>UI: Select Theme (e.g., 🎄 Winter Holidays)
+    UI->>UI: Store selectedTheme in state
+
+    Note over User,BS: Step 3: Fortune Generation (1.0 CELO - Promotional!)
     User->>UI: Click "Generate Fortune"
-    UI->>PayV3: createImagePayment() + 2.0 CELO
+    UI->>PayV3: createImagePayment() + 1.0 CELO
     PayV3-->>UI: Return paymentId
 
-    UI->>API: /api/generate-fortune (paymentId, birthData)
-    API->>Flux: Generate AI Image
+    UI->>API: /api/generate-fortune (paymentId, birthData, theme)
+    API->>API: buildSeasonalPrompt(basePrompt, theme)
+    Note over API: Inject theme modifiers:<br/>snowflakes, aurora lights,<br/>golden bokeh, frost patterns
+    API->>Flux: Generate Themed AI Image
     Flux-->>S3: Store Image
     S3-->>API: Image URL
 
-    API->>API: Create Fortune Metadata JSON
+    API->>API: Create Fortune Metadata JSON with Theme Info
     API->>IPFS: Upload Generation Metadata
     IPFS-->>API: IPFS Hash (metadata URI)
 
@@ -285,10 +298,11 @@ sequenceDiagram
     PayV3-->>API: Metadata Stored ✅
     API-->>UI: Fortune Generated ✅
 
-    Note over User,BS: Step 3: NFT Minting (2.0 CELO)
+    Note over User,BS: Step 4: NFT Minting (2.0 CELO)
     User->>UI: Click "Mint NFT"
-    UI->>API: /api/upload-to-ipfs (fortune data)
-    API->>IPFS: Upload NFT Metadata
+    UI->>API: /api/upload-to-ipfs (fortune data + theme)
+    API->>IPFS: Upload NFT Metadata with Theme
+    Note over IPFS: Theme info permanently stored:<br/>{ theme: "winter-holidays",<br/>  themeInfo: {...} }
     IPFS-->>API: NFT Metadata URI
 
     UI->>NFTV3: mintFromImagePayment(to, metadataURI, paymentId) + 2.0 CELO
@@ -300,9 +314,9 @@ sequenceDiagram
     UI->>PayV3: markAsMinted(paymentId, tokenId)
     PayV3-->>UI: Marked as Minted ✅
 
-    UI-->>User: Display Minted NFT Card
+    UI-->>User: Display Minted NFT Card (Themed! 🎄)
 
-    Note over User,BS: Step 4: View Collection
+    Note over User,BS: Step 5: View Collection
     User->>UI: Navigate to Collection
     UI->>BS: Fetch NFT Transfers (V3 Contract)
     BS-->>UI: V3 NFT List
@@ -311,10 +325,10 @@ sequenceDiagram
 
     loop For Each NFT
         UI->>IPFS: Fetch Metadata by tokenURI
-        IPFS-->>UI: NFT Metadata JSON
+        IPFS-->>UI: NFT Metadata JSON (includes theme)
     end
 
-    UI-->>User: Display Complete Collection (V2 + V3)
+    UI-->>User: Display Complete Collection (V2 + V3 + Theme Info)
 ```
 
 ## Project Structure
@@ -437,7 +451,7 @@ cp .env.example .env.local
 #
 # Pricing:
 # NEXT_PUBLIC_CELO_MINT_PRICE=2.0
-# NEXT_PUBLIC_IMAGE_FEE=2.0
+# NEXT_PUBLIC_IMAGE_FEE=1.0  (Promotional pricing!)
 #
 # Network & APIs:
 # NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-project-id>
